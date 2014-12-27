@@ -5,7 +5,7 @@ openSUSE base livecd with lates opensource video drivers
 ==============
 How to make(on openSUSE)
 
-zypper in kiwi kiwi-tools kiwi0desk-isoboot
+zypper in kiwi kiwi-tools kiwi-desk-isoboot
 
 copy /suse-gog to /usr/share/kiwi/image/isoboot
 
