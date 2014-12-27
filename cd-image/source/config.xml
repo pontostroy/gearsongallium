@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<image schemaversion="6.1" name="Gears_on_Gallium" displayname="Gears_on_Gallium">
+        <description type="boot">
+                <author>pontostroy</author>
+                <contact>pontostroy@gmail.com</contact>
+                <specification>Gears_on_Gallium</specification>
+        </description>
+        <preferences>
+                <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=798720 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
+                <version>14.12.25</version>
+                <packagemanager>zypper</packagemanager>
+                <rpm-check-signatures>false</rpm-check-signatures>
+                <rpm-excludedocs>true</rpm-excludedocs>
+                <rpm-force>true</rpm-force>
+                <bootloader-theme>openSUSE</bootloader-theme>
+                <bootsplash-theme>openSUSE</bootsplash-theme>
+                <timezone>UTC</timezone>
+                <hwclock>localtime</hwclock>
+                <locale>en_US</locale>
+        </preferences>
+        <users group="root">
+                <user name="root" shell="/bin/bash" password="$1$7Gh1HR1k$n1gxTBfBrM.BrYZiNomev." home="/root"/>
+        </users>
+        <users group="users">
+                <user name="gog" shell="/bin/bash" password="$1$K4yZq8cW$G.ARo7clIfJleo4l0Gmx.0" home="/home/gog"/>
+        </users>
+        <packages patternType="onlyRequired" type="image">
+                <package name="plymouth-branding-openSUSE" bootinclude="true" bootdelete="true"/>
+                <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
+                <package name="yast2-control-center"/>
+                <package name="yast2-storage"/>
+                <package name="yast2-control-center-qt"/>
+                <package name="yast2-network"/>
+		<package name="SuSEfirewall2"/>
+		<package name="yast2-sound"/>
+                <package name="chromium-pepper-flash"/>
+                <package name="yast2-sysconfig"/>
+                <package name="yast2-qt-branding-openSUSE"/>
+                <package name="yast2-theme-openSUSE"/>
+                <package name="yast2-branding-openSUSE"/>
+                <package name="libyui-qt-pkg6"/>
+                <package name="libyui-ncurses-pkg6"/>
+                <package name="yast2-sudo"/>
+                <package name="yast2-users"/>
+                <package name="valgrind"/>
+                <package name="gwenview"/>
+                <package name="phonon-backend-gstreamer"/>
+                <package name="gstreamer"/>
+                <package name="gstreamer-plugins-base"/>
+                <package name="libOpenThreads13"/>
+                <package name="kernel-firmware"/>
+                <package name="alsa-utils"/>
+                <package name="kernel-desktop"/>
+		<package name="libXtst6"/>
+                <package name="xf86-video-ati"/>
+                <package name="xf86-video-intel"/>
+                <package name="xf86-video-qxl"/>
+                <package name="xf86-video-nouveau"/>
+                <package name="okular"/>
+                <package name="polkit-default-privs"/>
+                <package name="polkit-kde-agent-1"/>
+                <package name="polkit-gnome"/>
+                <package name="libupower-glib3"/>
+                <package name="upower"/>
+                <package name="smplayer"/>
+                <package name="chromium"/>
+                <package name="chromium-desktop-kde"/>
+                <package name="chromium-ffmpeg"/>
+                <package name="flash-player-kde4"/>
+                <package name="clementine"/>
+                <package name="baloo-file"/>
+		<package name="bzip2"/>
+                <package name="bluez"/>
+                <package name="bluedevil"/>
+                <package name="android-tools"/>
+                <package name="pptp"/>
+                <package name="apitrace"/>
+		<package name="gstreamer-plugins-bad-orig-addon"/>
+		<package name="xhost"/>                
+		<package name="xcompmgr"/>
+                <package name="gstreamer-utils"/>
+                <package name="glibc-locale"/>
+                <package name="syslogd"/>
+                <package name="yast2-live-installer"/>
+                <package name="plasma-nm"/>
+                <package name="plasma-nm-pptp"/>
+                <package name="plasma-nm-openvpn"/>               
+                <package name="kdebase4-wallpapers"/>
+                <package name="net-tools"/>
+                <package name="kdebase4-session"/>
+                <package name="Mesa-demos"/>
+                <package name="kdebase4-workspace-branding-upstream"/>
+                <package name="xorg-x11-server"/>
+                <package name="kdebase4-workspace"/>
+                <package name="libkde4"/>
+                <package name="kdebase4"/>
+                <package name="iputils"/>
+                <package name="plasmoid-folderview"/>
+                <package name="sysconfig"/>
+                <package name="pwdutils"/>
+                <package name="procps"/>
+                <package name="xrandr"/>
+                <package name="netcfg"/>
+                <package name="module-init-tools"/>
+                <package name="kbd"/>
+                <package name="hwinfo"/>
+                <package name="aaa_base"/>
+                <package name="wine"/>
+                <package name="xdg-menu"/>
+                <package name="kdm-branding-upstream"/>
+                <package name="kdebase4-runtime-branding-openSUSE"/>
+                <package name="kdm"/>
+                <package name="gawk"/>
+                <package name="Mesa"/>
+                <package name="libtxc_dxtn"/>
+                <package name="wireless-tools"/>
+                <package name="wireless-regdb"/>
+                <package name="kwin"/>
+                <package name="misc-console-font"/>
+                <package name="libfreeimageplus3"/>
+                <package name="xf86-input-evdev"/>
+                <package name="xf86-input-keyboard"/>
+                <package name="xf86-input-joystick"/>
+                <package name="xf86-input-mouse"/>
+                <package name="xf86-input-wacom"/>
+                <package name="xf86-input-void"/>
+                <package name="xf86-input-synaptics"/>
+                <package name="xf86-input-vmmouse"/>
+                <package name="konsole"/>
+                <package name="cpufrequtils"/>
+                <package name="libxine2"/>
+                <package name="liberation-fonts"/>
+                <package name="ntfs-3g"/>
+                <package name="mc"/>
+                <package name="acpica"/>
+                <package name="acpi"/>
+                <package name="libalut0"/>
+                <package name="libxine2-sdl"/>
+                <package name="libSDL_mixer-1_2-0"/>
+                <package name="libSDL_image-1_2-0"/>
+                <package name="libSDL_sound-1_0-1"/>
+                <package name="libSDL_net-1_2-0"/>
+                <package name="libSDL_ttf-2_0-0"/>
+                <package name="libSDL_gfx15"/>
+                <package name="libSDL_Pango1"/>
+                <package name="alsa"/>
+                <package name="kmix"/>
+                <package name="MPlayer"/>
+                <package name="wget"/>
+                <package name="acpid"/>
+                <package name="openal-soft"/>
+                <package name="kvkbd"/>
+                <package name="alsa-oss"/>
+                <package name="kwrite"/>
+                <package name="pm-utils"/>
+                <package name="libglpng1"/>
+                <package name="libstdc++6"/>
+                <package name="dolphin"/>
+                <package name="htop"/>
+                <package name="sensors"/>
+                <package name="wvdial"/>
+                <package name="libsensors4"/>
+                <package name="dialog"/>
+                <package name="util-linux"/>
+                <package name="flash-player"/>
+                <package name="kget"/>
+                <package name="zenity"/>
+                <package name="libphysfs1"/>
+                <package name="desktop-file-utils"/>
+                <package name="plib"/>
+                <package name="aria2"/>
+                <package name="kdelibs4"/>
+                <package name="kdelibs4-branding-openSUSE"/>
+                <package name="kde-gtk-config"/>
+                <package name="aalib"/>
+                <package name="ark"/>
+                <package name="kcalc"/>
+                <package name="kdelibs4-core"/>
+                <package name="kde4-filesystem"/>
+                <package name="kdebase4-libkonq"/>
+                <package name="kdebase4-runtime"/>
+                <package name="ffmpeg"/>
+                <package name="krdc"/>
+                <package name="dosfstools"/>
+                <package name="ksnapshot"/>
+                <package name="update-desktop-files"/>
+                <package name="kdedesktopcheck"/>
+                <package name="kdebase4-nsplugin"/>
+                <package name="gdb"/>
+                <package name="unrar"/>
+                <package name="libglut3"/>
+                <package name="xorg-x11-fonts"/>
+                <package name="gstreamer-plugins-good"/>
+                <package name="tar"/>
+                <package name="ca-certificates"/>
+                <package name="latencytop"/>
+                <package name="openssh"/>
+                <package name="dmidecode"/>
+                <package name="lsb-release"/>
+                <package name="fuse"/>
+                <package name="xz"/>
+                <package name="ModemManager"/>
+                <package name="wodim"/>
+                <package name="btrfsprogs"/>
+                <package name="hfsutils"/>
+                <package name="jfsutils"/>
+                <package name="f2fs-tools"/>
+                <package name="xfsprogs"/>
+                <package name="obexftp"/>
+                <package name="cryptsetup"/>
+                <package name="strace"/>
+                <package name="reiserfs"/>
+                <package name="gstreamer-plugins-good-extra"/>
+                <package name="procinfo"/>
+                <package name="diffutils"/>
+                <package name="p7zip"/>
+                <package name="lsof"/>
+                <package name="lvm2"/>
+                <package name="timezone"/>
+                <package name="iftop"/>
+                <package name="mobile-broadband-provider-info"/>
+                <package name="sudo"/>
+                <package name="ntfsprogs"/>
+                <package name="udev"/>
+                <package name="i2c-tools"/>
+                <package name="rdesktop"/>
+                <package name="libspeexdsp1"/>
+                <package name="libspeex1"/>
+                <package name="openvpn"/>
+                <package name="cryptconfig"/>
+                <package name="bash"/>
+                <package name="dmraid"/>
+                <package name="usb_modeswitch"/>
+                <package name="libkmod2"/>
+                <package name="xdg-user-dirs"/>
+                <package name="xdg-user-dirs-gtk"/>
+                <package name="dejavu-fonts"/>
+                <package name="cpupower"/>
+                <package name="biosdevname"/>
+                <package name="powertop"/>
+                <package name="perf"/>
+                <package name="radeon-profile"/>
+                <package name="dd_rescue"/>
+                <package name="hdparm"/>
+                <package name="x11perf"/>
+                <package name="systemd-sysvinit"/>
+                <package name="kactivities4"/>
+                <package name="kdebase4-openSUSE"/>
+                <package name="desktop-data-openSUSE"/>
+                <package name="kdialog"/>
+                <package name="vaapi-intel-driver"/>
+                <package name="vaapi-tools"/>
+                <package name="xdm"/>
+                <package name="xorg-x11-server-extra"/>
+                <package name="xinit"/>
+                <package name="radeontop"/>
+                <package name="fontconfig"/>
+                <package name="fonts-config"/>
+                <package name="google-droid-fonts"/>
+                <package name="libvdpau_r600"/>
+                <package name="libvdpau_radeonsi"/>
+                <package name="libvdpau_nouveau"/>
+                <package name="gparted"/>
+                <package name="gtk2-theme-oxygen"/>
+                <package name="make"/>
+                <package name="gcc"/>
+                <package name="gcc-c++"/>
+                <package name="autoconf"/>
+                <package name="automake"/>
+                <package name="php5-ctype"/>
+                <package name="php5-curl"/>
+                <package name="php5-openssl"/>
+                <package name="php5-pcntl"/>
+                <package name="php5-zip"/>
+                <package name="php5-gd"/>
+                <package name="php5-zlib"/>
+                <package name="php5-posix"/>
+                <package name="php5-pear"/>
+                <package name="php5-dom"/>
+                <package name="libcurl-devel"/>
+                <package name="php5-json"/>
+                <package name="glew-devel"/>
+                <package name="freeglut-devel"/>
+                <package name="libSDL-devel"/>
+                <package name="freeimage-devel"/>
+                <package name="libSDL_gfx-devel"/>
+                <package name="libSDL_image-devel"/>
+                <package name="libSDL_net-devel"/>
+                <package name="libSDL_ttf-devel"/>
+                <package name="libSDL_sound-devel"/>
+                <package name="libtool"/>
+                <package name="pkg-config"/>
+                <package name="zlib-devel"/>
+                <package name="freealut-devel"/>
+                <package name="libjpeg-devel"/>
+                <package name="libpng16-devel"/>
+                <package name="libpng12-devel"/>
+                <package name="libvorbis-devel"/>
+                <package name="glu-devel"/>
+                <package name="gtk3-theme-oxygen"/>
+                <package name="libjansson-devel"/>
+                <package name="llvm-r600-clang"/>
+                <package name="ncurses-devel"/>
+		<package name="scrot"/>
+		<package name="qps"/>
+		<package name="wmctrl"/>
+		<package name="simplescreenrecorder"/>
+		<package name="Mesa-libOpenCL-devel"/>
+                <package name="Mesa-libOpenCL1"/>
+		<package name="ocl-icd-devel"/>
+                <package name="libOpenCL1"/>
+                <package name="libclc-devel"/>
+                <package name="grub"/>
+                <package name="grub2"/>
+                <package name="grub2-i386-pc"/>
+                <package name="grub2-x86_64-efi"/>
+                <package name="xdpyinfo"/>
+                <package name="steam"/>
+                <package name="prelink"/>
+                <package name="aaa_base-extras"/>
+                <package name="gpart"/>
+                <package name="libuuid-devel"/>
+                <package name="libblkid-devel"/>
+                <package name="libacl-devel"/>
+                <package name="lzo-devel"/>
+                <package name="gst-omx"/>
+                <package name="libgstvaapi1-1_4-1"/>
+                <package name="libgstvaapi-x11-1_4-1"/>
+                <package name="libomxil-bellagio"/>
+                <package name="libomx_mesa"/>
+                <package name="gstreamer-plugins-bad"/>
+		<package name="gstreamer-plugins-base"/>
+                <package name="gstreamer-plugins-libav"/>
+                <package name="gstreamer-plugins-ugly"/>
+                <package name="gstreamer-plugins-vaapi"/>
+		<package name="alsa-plugins-pulse"/>
+                <package name="pavumeter"/>       
+                <package name="pavucontrol"/>
+                <package name="paprefs"/>
+                <package name="paman"/>
+		<package name="libfreeimageplus3"/>
+		<package name="libgcrypt11"/>
+		<package name="libXtst6"/>
+		<package name="gconf2"/>
+		<package name="mpv"/>
+		<package name="baka-mplayer"/>
+		<package name="lxde-common"/>
+		<package name="lxshortcut"/>
+		<package name="lxsession"/>
+		<package name="lxterminal"/>
+		<package name="lxappearance"/>
+		<package name="lxappearance-obconf"/>
+		<package name="lxpanel"/>
+		<package name="lxpanel-plugin-power-manager"/>
+		<package name="lxrandr"/>
+		<package name="lxde-common-branding-upstream"/>
+		<package name="lxinput"/>
+		<package name="lxtask"/>
+		<package name="nuoveXT2-icon-theme"/>
+		<package name="lxcc"/>
+		<package name="pcmanfm"/>
+		<package name="gphotofs"/>
+		<package name="libgphoto2-6"/>
+		<package name="libd3dadapter9"/>
+		<package name="libGLEW1_11"/>
+<!--lang-->
+                <package name="paratype-pt-sans-fonts"/>
+                <package name="paratype-pt-serif-fonts"/>
+                <package name="paratype-pt-mono-fonts"/>
+<!--lib32-->
+		<package name="libudev1-32bit"/>
+		<package name="libd3dadapter9-32bit"/>
+		<package name="gnome-keyring-32bit"/>
+		<package name="libusb-1_0-0-32bit"/>
+		<package name="libbz2-1-32bit"/>
+		<package name="alsa-plugins-pulse-32bit"/>
+		<package name="libSDL-1_2-0-32bit"/>
+		<package name="libSDL2-2_0-0-32bit"/>
+		<package name="libSDL2_gfx-1_0-0-32bit "/>
+		<package name="libSDL2_image-2_0-0-32bit"/>
+		<package name="libSDL2_mixer-2_0-0-32bit"/>
+		<package name="libSDL2_ttf-devel-32bit"/>
+		<package name="libSDL_gfx15-32bit"/>
+		<package name="libSDL_image-1_2-0-32bit"/>
+		<package name="libSDL_mixer-1_2-0-32bit"/>
+		<package name="libSDL_net-1_2-0-32bit"/>
+		<package name="libSDL_sound-1_0-1-32bit"/>
+		<package name="libSDL_ttf-2_0-0-32bit"/>
+		<package name="libSDLmm-0_1-8-32bit"/>
+		<package name="libICE6-32bit"/>
+		<package name="libSM6-32bit"/>
+		<package name="libtxc_dxtn-32bit"/>
+        	<package name="libgcrypt11-32bit"/>
+		<package name="libXtst6-32bit"/>
+		<package name="gconf2-32bit"/>
+		<package name="libgphoto2-6-32bit"/>
+		<package name="libGLEW1_11-32bit"/>
+        </packages>
+        <packages type="bootstrap">
+                <package name="glibc-locale"/>
+                <package name="cracklib-dict-full"/>
+                <package name="ca-certificates"/>
+                <package name="filesystem"/>
+                <package name="module-init-tools"/>
+                <package name="udev"/>
+        </packages>
+        <repository type="yast2"  imageinclude="false" >
+                <source path="http://download.opensuse.org/factory/repo/oss/"/>
+        </repository>
+        <repository type="yast2"  imageinclude="false"  >
+                <source path="http://download.opensuse.org/factory/repo/non-oss/"/>
+        </repository>
+        <repository type="rpm-md" priority="30" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Factory/"/>
+        </repository>
+	<repository type="rpm-md" priority="16" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/multimedia:/libs/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" priority="15" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false"  >
+                <source path="http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/filesystems/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/games/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/games:/tools/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/network:/chromium/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/GNOME:/Next/openSUSE_Factory/"/>
+        </repository>
+	<repository type="rpm-md" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" priority="25" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Factory/"/>
+        </repository>
+</image>

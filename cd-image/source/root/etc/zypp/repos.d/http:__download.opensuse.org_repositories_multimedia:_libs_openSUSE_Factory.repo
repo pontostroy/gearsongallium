@@ -1,0 +1,8 @@
+[http:__download.opensuse.org_repositories_multimedia:_libs_openSUSE_Factory]
+name=http:__download.opensuse.org_repositories_multimedia:_libs_openSUSE_Factory
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Factory/
+type=rpm-md
+priority=25
+keeppackages=1

@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_repositories_Emulators:_Wine_openSUSE_Factory]
+name=http:__download.opensuse.org_repositories_Emulators:_Wine_openSUSE_Factory
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Factory/
+type=rpm-md
+keeppackages=1

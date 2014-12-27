@@ -1,0 +1,67 @@
+#Mesa-demos
+/usr/lib64/mesa/bin/xdemos/glxgears
+/usr/lib64/mesa/bin/egl/es2_info
+
+#wine
+wine path_to_exe
+or
+winefile
+
+rec.sh - Record screen or window  with VAAPI(intel I420 or NV12), OMX(radeon NV12), software (x264enc I420 or NV12) to mkv file, with or without sound.
+Require kdialog, gstreamer-1.0, gst-omx, gstreamer-vaapi-plugin, intel-vaapi or mesa-omx, pulseaudio.
+
+Run with -s argument to enable sound recording /rec.sh -s
+         -d to set dir for saving *.mkv /rec.sh -d /tmp
+         -n for nogui mode /rec.sh -n=v for vaapi; -n=o for omx; -n=x for x264enc 
+         /rec.sh -s -d=/tmp -n=o record screen with sound using omx and save to /tmp
+         -h show help message
+
+         
+         
+         
+# Steam  need  hdd or flash for files.
+
+1.    Mount the external or internal drive, usb flash drive or network file system.
+mount /dev/sdb3 /mnt
+
+2.  Create a directory named pts, or any other name of your choice, user gog should have the read and write permission  in this directory.
+mkdir /mnt/Steam
+chmod 777 /mnt/Steam
+
+3.   Make a symbolic link from  the directory we created to  /home/ gog/.local/share/Steam
+ln -s /mnt/Steam /home/gog/.local/share/Steam
+
+STEAM_RUNTIME=0 steam
+
+
+# Phoronix-test-suite
+1.    Mount the external or internal drive, usb flash drive or network file system.
+mount /dev/sdb3 /mnt
+
+2.  Create a directory named pts, or any other name of your choice, user gog should have the read and write permission  in this directory.
+mkdir /mnt/pts
+chmod 777 /mnt/pts
+
+3.   Make a symbolic link from  the directory we created to  /home/ gog/.phoronix-test-suite.
+ln -s /mnt/pts /home/gog/.phoronix-test-suite
+
+4.   Now you can run phoronix-test-suite, if you do not delete the folder you created the data and cache tests can be reused the next time, just  repeat step 1 and 3.
+
+
+
+# Switching between ilo and i965 driver
+
+
+//ilo
+sudo mv /usr/lib/dri/i965_dri.so /usr/lib/dri/i965_dri.so.orig
+sudo mv /usr/lib/dri/ilo_dri.so /usr/lib/dri/i965_dri.so
+
+sudo mv /usr/lib64/dri/i965_dri.so /usr/lib64/dri/i965_dri.so.orig
+sudo mv /usr/lib64/dri/ilo_dri.so /usr/lib64/dri/i965_dri.so
+
+//i965
+sudo mv /usr/lib/dri/i965_dri.so /usr/lib/dri/ilo_dri.so
+sudo mv /usr/lib/dri/ilo_dri.so.orig /usr/lib/dri/i965_dri.so
+
+sudo mv /usr/lib64/dri/i965_dri.so /usr/lib64/dri/ilo_dri.so
+sudo mv /usr/lib64/dri/ilo_dri.so.orig /usr/lib64/dri/i965_dri.so

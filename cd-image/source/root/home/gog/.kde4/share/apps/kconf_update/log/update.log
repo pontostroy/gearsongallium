@@ -1,0 +1,132 @@
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/devicepreference.upd' for new updates
+2014-07-24T14:44:55 devicepreference.upd: Found new update 'DevicesMovedToPlatformPlugin'
+2014-07-24T14:44:55 devicepreference.upd: Running script 'phonon_devicepreference_update'
+2014-07-24T14:44:55 devicepreference.upd: Found new update 'DevicesUIDsChanged'
+2014-07-24T14:44:55 devicepreference.upd: Running script 'phonon_deviceuids_update'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/drkonqi-rename-config-section.upd' for new updates
+2014-07-24T14:44:55 drkonqi-rename-config-section.upd: Found new update 'kde-4.11'
+2014-07-24T14:44:55 drkonqi-rename-config-section.upd: File 'drkonqirc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kcalcrc.upd' for new updates
+2014-07-24T14:44:55 kcalcrc.upd: Found new update 'KDE_3_2_0'
+2014-07-24T14:44:55 kcalcrc.upd: File 'kcalcrc' does not exist or empty, skipping
+2014-07-24T14:44:55 kcalcrc.upd: Found new update 'KDE_4_3_0'
+2014-07-24T14:44:55 kcalcrc.upd: File 'kcalcrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kcookiescfg.upd' for new updates
+2014-07-24T14:44:55 kcookiescfg.upd: Found new update 'kde2.2/b1'
+2014-07-24T14:44:55 kcookiescfg.upd: File 'kcookiejarrc' does not exist or empty, skipping
+2014-07-24T14:44:55 kcookiescfg.upd: Found new update 'kde3.1/cvs'
+2014-07-24T14:44:55 kcookiescfg.upd: File 'kcookiejarrc' does not exist or empty, skipping
+2014-07-24T14:44:55 kcookiescfg.upd: Found new update 'kde4.10/git'
+2014-07-24T14:44:55 kcookiescfg.upd: File 'kcookiejarrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kded.upd' for new updates
+2014-07-24T14:44:55 kded.upd: Found new update 'kde3.0'
+2014-07-24T14:44:55 kded.upd: File 'kdedrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kget.upd' for new updates
+2014-07-24T14:44:55 kget.upd: Found new update '2.8.0'
+2014-07-24T14:44:55 kget.upd: File 'kgetrc' does not exist or empty, skipping
+2014-07-24T14:44:55 kget.upd: Found new update '2.8.0/multiseg'
+2014-07-24T14:44:55 kget.upd: File 'kget_multisegkiofactory.rc' does not exist or empty, skipping
+2014-07-24T14:44:55 kget.upd: Found new update '2.8.0/sensitive'
+2014-07-24T14:44:55 kget.upd: File 'kgetrc' does not exist or empty, skipping
+2014-07-24T14:44:55 kget.upd: Found new update '2.8.0/limitdownloads'
+2014-07-24T14:44:55 kget.upd: File 'kgetrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kio_help.upd' for new updates
+2014-07-24T14:44:55 kio_help.upd: Found new update 'kde3_2'
+2014-07-24T14:44:55 kio_help.upd: Running script 'move_kio_help_cache.sh'
+2014-07-24T14:44:55 [Script] mv: cannot stat ‘/home/gog/.kde4/share/apps/kio_help/cache’: No such file or directory
+2014-07-24T14:44:55 [Script] rmdir: failed to remove ‘/home/gog/.kde4/share/apps/kio_help’: No such file or directory
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kioslave.upd' for new updates
+2014-07-24T14:44:55 kioslave.upd: Found new update 'kde2.2/r1'
+2014-07-24T14:44:55 kioslave.upd: File 'kioslaverc' does not exist or empty, skipping
+2014-07-24T14:44:55 kioslave.upd: Skipping update 'kde2.2/r1'
+2014-07-24T14:44:55 kioslave.upd: File 'kioslaverc' does not exist or empty, skipping
+2014-07-24T14:44:55 kioslave.upd: Found new update 'kde2.2/r2'
+2014-07-24T14:44:55 kioslave.upd: File 'kioslaverc' does not exist or empty, skipping
+2014-07-24T14:44:55 kioslave.upd: Found new update 'kde2.2/r3'
+2014-07-24T14:44:55 kioslave.upd: File 'kioslaverc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/klipper-kconfigxt.upd' for new updates
+2014-07-24T14:44:55 klipper-kconfigxt.upd: Found new update 'KlipperNoSpacesInKeyNames'
+2014-07-24T14:44:55 klipper-kconfigxt.upd: File 'klipperrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/konsole.upd' for new updates
+2014-07-24T14:44:55 konsole.upd: Found new update '2.9.0-global-options'
+2014-07-24T14:44:55 konsole.upd: File 'konsolerc' does not exist or empty, skipping
+2014-07-24T14:44:55 konsole.upd: Found new update '2.9.0-colorscheme-bold-key'
+2014-07-24T14:44:55 konsole.upd: Running script 'konsole-2.9.0-colorscheme-bold-key.sh'
+2014-07-24T14:44:55 konsole.upd: Found new update '2.10.0-remove-menuindex-from-profiles'
+2014-07-24T14:44:55 konsole.upd: Running script 'konsole-2.10.0-remove-menuindex-from-profiles.sh'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/konsole_remove_background_mode.upd' for new updates
+2014-07-24T14:44:55 konsole_remove_background_mode.upd: Found new update '2.11.0-remove-background-mode'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/krdb_libpathwipe.upd' for new updates
+2014-07-24T14:44:55 krdb_libpathwipe.upd: Found new update 'LibraryPathWipeOut'
+2014-07-24T14:44:55 krdb_libpathwipe.upd: Running script 'krdb_clearlibrarypath'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kscreenlocker_locksession-shortcut.upd' for new updates
+2014-07-24T14:44:55 kscreenlocker_locksession-shortcut.upd: Found new update '4.9-locksession-shortcut'
+2014-07-24T14:44:55 kscreenlocker_locksession-shortcut.upd: Running script 'force_krunner_lock_shortcut_unreg'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/ksmserver_shortcuts.upd' for new updates
+2014-07-24T14:44:55 ksmserver_shortcuts.upd: Found new update 'kde4.10'
+2014-07-24T14:44:55 ksmserver_shortcuts.upd: Found new update 'kde4.10-remove-group-kscreenlocker'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/ksslcertificatemanager.upd' for new updates
+2014-07-24T14:44:55 ksslcertificatemanager.upd: Found new update 'kde4.2'
+2014-07-24T14:44:55 ksslcertificatemanager.upd: Running script 'ksslcertificatemanager.upd.sh'
+2014-07-24T14:44:55 [Script] rm: cannot remove ‘/home/gog/.kde4//share/config/ksslcertificatemanager’: No such file or directory
+2014-07-24T14:44:55 ksslcertificatemanager.upd: !! An error occurred while running 'sh /usr/share/kde4/apps/kconf_update/ksslcertificatemanager.upd.sh'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kuriikwsfilter.upd' for new updates
+2014-07-24T14:44:55 kuriikwsfilter.upd: Found new update 'post-kde3.1/cvs'
+2014-07-24T14:44:55 kuriikwsfilter.upd: File 'kuriikwsfilterrc' does not exist or empty, skipping
+2014-07-24T14:44:55 kuriikwsfilter.upd: Found new update 'pre-kde4.9'
+2014-07-24T14:44:55 kuriikwsfilter.upd: File 'kuriikwsfilterrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwallet-4.13.upd' for new updates
+2014-07-24T14:44:55 kwallet-4.13.upd: Found new update 'kde4.13'
+2014-07-24T14:44:55 kwallet-4.13.upd: File 'kwalletrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_fsp_workarounds_1.upd' for new updates
+2014-07-24T14:44:55 kwin_fsp_workarounds_1.upd: Found new update 'kde351'
+2014-07-24T14:44:55 kwin_fsp_workarounds_1.upd: Running script 'kwin_update_default_rules' with arguments 'fsp_workarounds_1.kwinrules'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_remove_delay_focus.upd' for new updates
+2014-07-24T14:44:55 kwin_remove_delay_focus.upd: Found new update 'Kwin-4.8'
+2014-07-24T14:44:55 kwin_remove_delay_focus.upd: Running script 'kwin_remove_delay_focus.sh'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_remove_effects.upd' for new updates
+2014-07-24T14:44:55 kwin_remove_effects.upd: Found new update 'kwin4.7_effects'
+2014-07-24T14:44:55 kwin_remove_effects.upd: File 'kwinrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_translate_activity_rule.upd' for new updates
+2014-07-24T14:44:55 kwin_translate_activity_rule.upd: Found new update 'Kwin-4.10'
+2014-07-24T14:44:55 kwin_translate_activity_rule.upd: Running script 'kwin_translate_activity_rule.sh'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_translate_confrequest_rule.upd' for new updates
+2014-07-24T14:44:55 kwin_translate_confrequest_rule.upd: Found new update 'Kwin-4.11'
+2014-07-24T14:44:55 kwin_translate_confrequest_rule.upd: Running script 'kwin_translate_confrequest_rule.sh'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_update_410.upd' for new updates
+2014-07-24T14:44:55 kwin_update_410.upd: Found new update 'Kwin-4.10_1'
+2014-07-24T14:44:55 kwin_update_410.upd: Running script 'kwin_update_settings_410'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_update_411.upd' for new updates
+2014-07-24T14:44:55 kwin_update_411.upd: Found new update 'Kwin-4.11_0'
+2014-07-24T14:44:55 kwin_update_411.upd: Running script 'kwin_update_settings_411'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_update_49.upd' for new updates
+2014-07-24T14:44:55 kwin_update_49.upd: Found new update 'Kwin-4.9'
+2014-07-24T14:44:55 kwin_update_49.upd: Running script 'kwin_update_settings_49'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_update_tabbox_qml_settings.upd' for new updates
+2014-07-24T14:44:55 kwin_update_tabbox_qml_settings.upd: Found new update 'Kwin-4.8'
+2014-07-24T14:44:55 kwin_update_tabbox_qml_settings.upd: Running script 'kwin_update_tabbox_qml_settings'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/kwin_update_tabbox_settings.upd' for new updates
+2014-07-24T14:44:55 kwin_update_tabbox_settings.upd: Found new update 'Kwin-4.4'
+2014-07-24T14:44:55 kwin_update_tabbox_settings.upd: Running script 'kwin_update_tabbox_settings'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/mailtransports.upd' for new updates
+2014-07-24T14:44:55 mailtransports.upd: Found new update 'initial-kmail-migration'
+2014-07-24T14:44:55 mailtransports.upd: File 'kmailrc' does not exist or empty, skipping
+2014-07-24T14:44:55 mailtransports.upd: Found new update 'initial-knode-migration'
+2014-07-24T14:44:55 mailtransports.upd: File 'knoderc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/notifications-to-orgkdenotifications.upd' for new updates
+2014-07-24T14:44:55 notifications-to-orgkdenotifications.upd: Found new update '4.10QmlNotifications'
+2014-07-24T14:44:55 notifications-to-orgkdenotifications.upd: Running script 'notifications-to-orgkdenotifications'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/okular.upd' for new updates
+2014-07-24T14:44:55 okular.upd: Found new update 'sep_settings'
+2014-07-24T14:44:55 okular.upd: File 'okularpartrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/oxygen.upd' for new updates
+2014-07-24T14:44:55 oxygen.upd: Found new update '1'
+2014-07-24T14:44:55 oxygen.upd: File 'oxygenrc' does not exist or empty, skipping
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/plasma-add-shortcut-to-menu.upd' for new updates
+2014-07-24T14:44:55 plasma-add-shortcut-to-menu.upd: Found new update '4.1LauncherShortcut'
+2014-07-24T14:44:55 plasma-add-shortcut-to-menu.upd:2:'Script=plasma-add-shortcut-to-menu-update': Script 'plasma-add-shortcut-to-menu-update' not found
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/plasma-to-plasmadesktop-shortcuts.upd' for new updates
+2014-07-24T14:44:55 plasma-to-plasmadesktop-shortcuts.upd: Found new update '4.3plasma-desktop-shortcuts'
+2014-07-24T14:44:55 Checking update-file '/usr/share/kde4/apps/kconf_update/plasmarc-to-plasmadesktoprc.upd' for new updates
+2014-07-24T14:44:55 plasmarc-to-plasmadesktoprc.upd: Found new update '4.3plasma-desktop'
+2014-07-24T14:44:55 plasmarc-to-plasmadesktoprc.upd: Running script 'plasma-to-plasma-desktop'

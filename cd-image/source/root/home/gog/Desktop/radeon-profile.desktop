@@ -1,0 +1,19 @@
+[Desktop Entry]
+Categories=System;
+Comment[en_US]=Monitor Radeon GPU parameters and switch power profiles
+Comment=Monitor Radeon GPU parameters and switch power profiles
+Exec=kdesu radeon-profile
+GenericName[en_US]=
+GenericName=
+Icon=package_multimedia_tv
+MimeType=
+Name=Radeon Profile
+Path=
+StartupNotify=false
+Terminal=false
+TerminalOptions=
+Type=Application
+X-DBUS-ServiceName=
+X-DBUS-StartupType=
+X-KDE-SubstituteUID=false
+X-KDE-Username=

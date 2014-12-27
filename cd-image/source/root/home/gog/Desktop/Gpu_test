@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+GenericName=Gpu_test
+Icon=user-home
+Name[en_US]=Gpu_test
+Name=Gpu_test
+Type=Link
+URL[$e]=file:///opt/GpuTest_Linux_x64_0.7.0
+X-SuSE-translate=true

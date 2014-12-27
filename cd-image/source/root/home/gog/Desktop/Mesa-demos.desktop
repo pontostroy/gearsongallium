@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+GenericName=Mesa-demos
+Icon=user-home
+Name[en_US]=Mesa-demos
+Name=Mesa-demos
+Type=Link
+URL[$e]=/usr/lib64/mesa/bin
+X-SuSE-translate=true

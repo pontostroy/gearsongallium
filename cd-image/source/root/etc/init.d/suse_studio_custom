@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# This script is executed whenever your appliance boots.  Here you can add
+# commands to be executed before the system enters the first runlevel.  This
+# could include loading kernel modules, starting daemons that aren't managed
+# by init files, asking questions at the console, etc.
+#
+# The 'kiwi_type' variable will contain the format of the appliance (oem =
+# disk image, vmx = VMware, iso = CD/DVD, xen = Xen).
+#
+
+# read in some variables
+
+# Activate NetworkManager?
+#NETWORKMANAGER=yes
+
+#enable_network_manager_if_required() {
+#  if [ "$NETWORKMANAGER" == "yes" ]; then
+#    systemctl is-active network.service && systemctl stop network.service
+#    systemctl --force enable NetworkManager.service
+#    systemctl restart network.service
+#  fi
+#}
+
+#enable_network_manager_if_required
+
+
+
+/etc/init.d/network restart
+udevadm control --reload-rules
+udevadm trigger

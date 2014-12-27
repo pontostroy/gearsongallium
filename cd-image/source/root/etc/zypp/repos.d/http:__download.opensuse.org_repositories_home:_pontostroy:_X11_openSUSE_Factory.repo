@@ -1,0 +1,8 @@
+[http:__download.opensuse.org_repositories_home:_pontostroy:_X11_openSUSE_Factory]
+name=http:__download.opensuse.org_repositories_home:_pontostroy:_X11_openSUSE_Factory
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Factory/
+type=rpm-md
+priority=15
+keeppackages=1

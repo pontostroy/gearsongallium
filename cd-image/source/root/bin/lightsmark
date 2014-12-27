@@ -1,0 +1,2 @@
+#!/bin/bash
+cd /opt/Lightsmark2008.2.0/bin/pc-linux64 && ./backend "$@"

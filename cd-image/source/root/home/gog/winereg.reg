@@ -1,0 +1,10 @@
+REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Wine\Direct3D]
+"DirectDrawRenderer"="opengl"
+"CSMT"="enabled"
+"OffscreenRenderingMode"="fbo"
+"UseGLSL"="enabled"
+"UseNative"=dword:00000001
+"VideoPciDeviceID1"=dword:00001201
+"VideoPciVendorID1"=dword:000010de
