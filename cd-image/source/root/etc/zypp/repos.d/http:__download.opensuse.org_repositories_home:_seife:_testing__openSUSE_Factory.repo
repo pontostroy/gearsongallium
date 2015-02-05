@@ -1,0 +1,6 @@
+[http:__download.opensuse.org_repositories_home:_seife:_testing__openSUSE_Factory]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/home:/seife:/testing//openSUSE_Factory/
+type=rpm-md
+keeppackages=1
