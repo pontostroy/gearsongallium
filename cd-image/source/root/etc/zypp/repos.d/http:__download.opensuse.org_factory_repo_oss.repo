@@ -1,5 +1,4 @@
 [http:__download.opensuse.org_factory_repo_oss]
-name=http:__download.opensuse.org_factory_repo_oss
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/factory/repo/oss/

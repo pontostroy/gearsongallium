@@ -123,8 +123,8 @@ rm -rf /usr/share/ghostscript*
 rm -rf /usr/share/sounds/
 rm -rf /usr/share/autostart/SUSEgreeter.desktop
 rm -rf /usr/share/autostart/krunner.desktop
-ln -s /usr/lib64/libGLEW.so.1.11 /usr/lib64/libGLEW.so.1.5
-ln -s /usr/lib/libGLEW.so.1.11 /usr/lib/libGLEW.so.1.5
+ln -s /usr/lib64/libGLEW.so.1.12 /usr/lib64/libGLEW.so.1.5
+ln -s /usr/lib/libGLEW.so.1.12 /usr/lib/libGLEW.so.1.5
 ln -s /usr/lib/libudev.so.1.4.0 /usr/lib/libudev.so.0
 ln -s /usr/lib64/libudev.so.1.4.0 /usr/lib64/libudev.so.0
 ln -s /usr/lib/libbz2.so.1 /usr/lib/libbz2.so.1.0

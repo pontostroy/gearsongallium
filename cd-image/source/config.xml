@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=798720 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>15.01.13</version>
+                <version>15.02.04</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -362,17 +362,21 @@
 		<package name="pcmanfm"/>
 		<package name="gphotofs"/>
 		<package name="libgphoto2-6"/>
-		<package name="libd3dadapter9"/>
-		<package name="libGLEW1_11"/>
+		<package name="Mesa-libd3d"/>
+		<package name="libGLEW1_12"/>
 		<package name="dbus-1-x11"/>
 		<package name="gnome-screenshot"/>
+		<package name="fuse-exfat"/>
+		<package name="chntpw"/>
+		<package name="ucode-amd"/>
+		<package name="ucode-intel"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
                 <package name="paratype-pt-mono-fonts"/>
 <!--lib32-->
 		<package name="libudev1-32bit"/>
-		<package name="libd3dadapter9-32bit"/>
+		<package name="Mesa-libd3d-32bit"/>
 		<package name="gnome-keyring-32bit"/>
 		<package name="libusb-1_0-0-32bit"/>
 		<package name="libbz2-1-32bit"/>
@@ -397,7 +401,7 @@
 		<package name="libXtst6-32bit"/>
 		<package name="gconf2-32bit"/>
 		<package name="libgphoto2-6-32bit"/>
-		<package name="libGLEW1_11-32bit"/>
+		<package name="libGLEW1_12-32bit"/>
         </packages>
         <packages type="bootstrap">
                 <package name="glibc-locale"/>
@@ -445,6 +449,9 @@
         </repository>
 	<repository type="rpm-md" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Factory/"/>
+        </repository>
+	<repository type="rpm-md" priority="110" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/seife:/testing//openSUSE_Factory/"/>
         </repository>
         <repository type="rpm-md" priority="25" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Factory/"/>
