@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=798720 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>15.02.04</version>
+                <version>15.02.28</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -370,12 +370,15 @@
 		<package name="chntpw"/>
 		<package name="ucode-amd"/>
 		<package name="ucode-intel"/>
+		<package name="weston"/>
+		<package name="kmscon"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
                 <package name="paratype-pt-mono-fonts"/>
 <!--lib32-->
 		<package name="libudev1-32bit"/>
+		<package name="libpci3-32bit"/>
 		<package name="Mesa-libd3d-32bit"/>
 		<package name="gnome-keyring-32bit"/>
 		<package name="libusb-1_0-0-32bit"/>

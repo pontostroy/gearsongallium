@@ -22,6 +22,7 @@ export BOOTABLE_FLAG="$(echo -ne '\x80')"
 export ELOG_FILE=/var/log/boot.kiwi
 export TRANSFER_ERRORS_FILE=/tmp/transfer.errors
 export UFONT=/usr/share/fbiterm/fonts/b16.pcf.gz
+export CONSOLE_FONT=/usr/share/kbd/consolefonts/default8x16.gz
 export HYBRID_PERSISTENT_FS=btrfs
 export HYBRID_PERSISTENT_OPTS=""
 export HYBRID_PERSISTENT_ID=83
@@ -30,6 +31,7 @@ export UTIMER_INFO=/dev/utimer
 export bootLoaderOK=0
 export enablePlymouth=1
 export IFS_ORIG=$IFS
+export MEDIACHECK_OK_TIMER=5
 
 #======================================
 # lookup
@@ -693,7 +695,7 @@ function udevSystemStart {
         "reboot"
     fi
     $udev_bin --daemon
-    export UDEVD_PID=$(pidof -s $udev_bin)
+    export UDEVD_PID=$(pidof $udev_bin | tr ' ' ,)
 }
 #======================================
 # udevSystemStop
@@ -703,9 +705,27 @@ function udevSystemStop {
     # stop udev while in pre-init phase.
     # ----
     local IFS=$IFS_ORIG
-    if kill -0 $UDEVD_PID &>/dev/null;then
-        udevPending
-        kill $UDEVD_PID
+    local udevadmExec=$(lookup udevadm 2>/dev/null)
+    local umountProc=0
+    if [ ! -e "/proc/mounts" ];then
+        mount -t proc proc /proc
+        umountProc=1
+    fi
+    if [ -x $udevadmExec ];then
+        $udevadmExec control --exit
+    fi
+    if [ -z "$UDEVD_PID" ];then
+        . /iprocs
+    fi
+    local IFS=,
+    for p in $UDEVD_PID; do
+        if kill -0 $p &>/dev/null;then
+            udevPending
+            kill $p
+        fi
+    done
+    if [ $umountProc -eq 1 ];then
+        umount /proc
     fi
 }
 #======================================
@@ -800,11 +820,7 @@ function loadAGPModules {
 #--------------------------------------
 function udevKill {
     local IFS=$IFS_ORIG
-    . /iprocs
-    if kill -0 $UDEVD_PID &>/dev/null;then
-        udevPending
-        kill $UDEVD_PID
-    fi
+    udevSystemStop
 }
 #======================================
 # activeConsoles
@@ -4008,7 +4024,7 @@ function searchImageISODevice {
                             grep "Application id:"|cut -f2 -d:
                         )
                         mbrVID=$(echo $mbrVID)
-                        if [ "$mbrVID" = "$mbrIID" ];then
+                        if [ "$mbrVID” = “$mbrVID" ];then
                             biosBootDevice=$pdev
                             echo; return 0
                         fi
@@ -4046,6 +4062,8 @@ function runMediaCheck {
         "waitkey"
     else
         Echo "ISO check passed"
+        Echo "Press any key to continue (waiting $MEDIACHECK_OK_TIMER sec...)"
+        read -s -n 1 -t $MEDIACHECK_OK_TIMER
     fi
 }
 #======================================
@@ -4141,9 +4159,10 @@ function searchBusIDBootDevice {
     # is set to this device for further processing
     # ----
     local IFS=$IFS_ORIG
-    local deviceID=0
     local dpath=/dev/disk/by-path
     local ipl_type=$(cat /sys/firmware/ipl/ipl_type)
+    local deviceID=$(cat /sys/firmware/ipl/device)
+    local dev_type=$(cat /sys/bus/ccw/devices/$deviceID/devtype)
     local wwpn
     local slun
     #======================================
@@ -4160,24 +4179,33 @@ function searchBusIDBootDevice {
     #======================================
     # determine device type: dasd or zfcp
     #--------------------------------------
-    if [ -z "$ipl_type" ];then
+    if [ -z "$deviceID" ];then
         systemException \
-            "Can't find IPL type" \
+            "Can't find IPL device" \
         "reboot"
     fi
     if [ "$ipl_type" = "fcp" ];then
+        # plain FCP device 512b blocksize
         haveZFCP=1
     elif [ "$ipl_type" = "ccw" ];then
-        haveDASD=1
+        if [[ "$dev_type" =~ "3390" ]];then
+            # plain DASD device 4k blocksize
+            haveDASD=1
+        elif [[ "$dev_type" =~ "9336" ]];then
+            # emulated DASD device 512b blocksize, handled as FCP device
+            # but don't configure host and disk as required for plain
+            # FCP devices
+            haveZFCP=1
+        else
+            systemException \
+                "Unknown Device type: $dev_type" \
+            "reboot"
+        fi
     else
         systemException \
             "Unknown IPL type: $ipl_type" \
         "reboot"
     fi
-    #======================================
-    # store device bus / host id
-    #--------------------------------------
-    deviceID=$(cat /sys/firmware/ipl/device)
     #======================================
     # check if we can find the device
     #--------------------------------------
@@ -4187,16 +4215,23 @@ function searchBusIDBootDevice {
         "reboot"
     fi
     #======================================
-    # DASD
+    # DASD real in CDL / LDL mode
     #--------------------------------------
     if [ $haveDASD -eq 1 ];then
         dasd_configure $deviceID 1 0
         biosBootDevice="$dpath/ccw-$deviceID"
     fi
     #======================================
-    # ZFCP
+    # DASD emulated in FBA mode
     #--------------------------------------
-    if [ $haveZFCP -eq 1 ];then
+    if [ $haveZFCP -eq 1 ] && [ "$ipl_type" = "ccw" ];then
+        dasd_configure $deviceID 1 0
+        biosBootDevice="$dpath/ccw-$deviceID"
+    fi
+    #======================================
+    # ZFCP real in SCSI mode
+    #--------------------------------------
+    if [ $haveZFCP -eq 1 ] && [ "$ipl_type" = "fcp" ];then
         wwpn=$(cat /sys/firmware/ipl/wwpn)
         slun=$(cat /sys/firmware/ipl/lun)
         zfcp_host_configure $deviceID 1
@@ -7753,6 +7788,10 @@ function bootImage {
     local reboot=no
     local option=${kernel_cmdline[@]}
     #======================================
+    # Set active console to default font
+    #--------------------------------------
+    setupConsoleFont
+    #======================================
     # check for init kernel option
     #--------------------------------------
     if [ -z "$init" ];then
@@ -8753,7 +8792,7 @@ function callPartitioner {
 #--------------------------------------
 function createPartitionerInput {
     local IFS=$IFS_ORIG
-    if echo $imageDiskDevice | grep -q 'dev\/dasd';then
+    if isDASDDevice; then
         PARTITIONER=fdasd
     fi
     if [ $PARTITIONER = "fdasd" ];then
@@ -10311,6 +10350,12 @@ function setupTTY {
     fi
 }
 #======================================
+# setupConsoleFont
+#--------------------------------------
+function setupConsoleFont {
+    setfont $CONSOLE_FONT
+}
+#======================================
 # setupConsole
 #--------------------------------------
 function setupConsole {
@@ -10485,7 +10530,7 @@ function resetBootBind {
     umount $bprefix/boot
     mv /$bootdir/boot /$bootdir/tmp
     mv /$bootdir/tmp/* /$bootdir
-    rmdir /$bootdir/tmp
+    rm -rf /$bootdir/tmp
     umount /$bootdir
     rmdir /$bootdir
     #======================================

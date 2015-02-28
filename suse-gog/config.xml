@@ -129,6 +129,7 @@
 		<package name="e2fsprogs"/>
 		<package name="ucode-amd"/>
 		<package name="ucode-intel"/>
+                <package name="ntfs-3g"/>
 	</packages>
 	<packages type="delete">
 		<package name="cracklib-dict-full"/>
