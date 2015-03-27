@@ -7,8 +7,8 @@
                 <specification>Gears_on_Gallium</specification>
         </description>
         <preferences>
-                <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=798720 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>15.02.28</version>
+                <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
+                <version>15.03.23</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -31,6 +31,7 @@
                 <package name="yast2-control-center"/>
                 <package name="yast2-storage"/>
                 <package name="yast2-control-center-qt"/>
+                <package name="libstdc++6"/>
                 <package name="yast2-network"/>
 		<package name="SuSEfirewall2"/>
 		<package name="yast2-sound"/>
@@ -48,7 +49,8 @@
                 <package name="phonon-backend-gstreamer"/>
                 <package name="gstreamer"/>
                 <package name="gstreamer-plugins-base"/>
-                <package name="libOpenThreads13"/>
+                <package name="libOpenThreads1"/>
+                <package name="libOpenThreads20"/>
                 <package name="kernel-firmware"/>
                 <package name="alsa-utils"/>
                 <package name="kernel-desktop"/>
@@ -413,6 +415,7 @@
                 <package name="filesystem"/>
                 <package name="module-init-tools"/>
                 <package name="udev"/>
+                <package name="libstdc++6"/>
         </packages>
         <repository type="yast2"  imageinclude="false" >
                 <source path="http://download.opensuse.org/factory/repo/oss/"/>
@@ -421,7 +424,7 @@
                 <source path="http://download.opensuse.org/factory/repo/non-oss/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/Kernel:/HEAD/standard/"/>
         </repository>
 	<repository type="rpm-md" priority="16" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/multimedia:/libs/openSUSE_Factory/"/>
