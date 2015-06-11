@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_repositories_KDE:_Unstable:_Applications_KDE_Unstable_Frameworks_openSUSE_Factory]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/KDE:/Unstable:/Applications/KDE_Unstable_Frameworks_openSUSE_Factory/
+type=rpm-md
+priority=30
+keeppackages=1

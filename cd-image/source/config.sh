@@ -68,13 +68,17 @@ rm -rf /usr/share/info
 rm -rf /usr/share/man
 rm -rf /usr/share/wallpapers/Aghi
 rm -rf /usr/share/wallpapers/Autumn
-rm -rf /usr/share/wallpapers/Blue_Wood
+rm -rf /usr/share/wallpapers/B*
 rm -rf /usr/share/wallpapers/Evening
 rm -rf /usr/share/wallpapers/F*
+rm -rf /usr/share/wallpapers/N*
+rm -rf /usr/share/wallpapers/W*
+rm -rf /usr/share/wallpapers/Grey
+rm -rf /usr/share/wallpapers/S*
 rm -rf /usr/share/wallpapers/Finally_Summer_in_Germany
 rm -rf /usr/share/wallpapers/Fresh_Morning
 rm -rf /usr/share/wallpapers/Hanami
-rm -rf /usr/share/wallpapers/Grass
+rm -rf /usr/share/wallpapers/G*
 rm -rf /usr/share/wallpapers/Media_Life
 rm -rf /usr/share/wallpapers/Plasmalicious
 rm -rf /usr/share/wallpapers/Quadros
@@ -92,8 +96,11 @@ rm -rf /usr/lib/locale/s*
 rm -rf /usr/lib/locale/m*
 rm -rf /usr/lib/locale/n*
 rm -rf /usr/lib/locale/k*
+rm -rf /usr/share/wine/gecko
+rm  -f /usr/share/cracklib/pw_dict.pwd
 rm  -f /usr/share/autostart/nepomukserver.desktop
 rm  -f /usr/share/autostart/nepomukcontroller.desktop
+rm  -f /usr/share/autostart/baloo_file.desktop
 rm  -f /usr/share/autostart/konqy_preload.desktop
 rm  -f /usr/share/autostart/kaddressbookmigrator.desktop
 rm -rf /usr/lib64/kde4/activitymanager_plugin_nepomuk.so
@@ -117,7 +124,8 @@ rm -f /var/log/lastlog
 rm -rf /var/log/zypp/*
 rm -rf /var/log/pbl.log
 rm -f /usr/bin/mencoder
-rm -f /usr/bin/clang-*
+rm -f /usr/bin/clang*
+rm  -f /usr/bin/pp-trace
 rm -f /usr/bin/gs
 rm -rf /usr/share/ghostscript*
 rm -rf /usr/share/sounds/
@@ -132,7 +140,7 @@ ln -s /usr/lib64/libbz2.so.1 /usr/lib64/libbz2.so.1.0
 ln -s /sbin/lspci /bin/lspci
 prelink -afmR
 baseSetRunlevel 5
-baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER kdm4
+baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER sddm
 baseUpdateSysConfig /etc/sysconfig/network/config NETWORKMANAGER yes
 baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER_AUTOLOGIN gog
 baseUpdateSysConfig /etc/sysconfig/network/config FEREWALL no

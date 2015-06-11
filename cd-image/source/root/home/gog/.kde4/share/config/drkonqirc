@@ -1,9 +1,0 @@
-[$Version]
-update_info=drkonqi-rename-config-section.upd:kde-4.11
-
-[General]
-Height 1080=322
-Width 1920=640
-
-[SystemInformation]
-CompiledSources=false

@@ -1,6 +1,0 @@
-[Desktop Entry]
-Icon=inode-directory
-Name=bin
-Type=Link
-URL[$e]=file:///usr/lib/mesa/bin
-X-KDE-LastOpenedWith=dolphin

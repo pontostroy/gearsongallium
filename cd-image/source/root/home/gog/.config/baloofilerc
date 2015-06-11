@@ -1,0 +1,9 @@
+[Basic Settings]
+Indexing-Enabled=false
+
+[General]
+exclude filters=_darcs,__pycache__,conftest,.obj,*.vm*,lzo,autom4te,*.swap,config.status,.histfile.*,*.csproj,*.loT,libtool,*~,CMakeTmp,confstat,*.o,confdefs.h,.uic,CMakeCache.txt,.moc,.hg,*.nvram,.xsession-errors*,*.orig,po,*.pyc,*.tmp,lost+found,*.m4,*.rcore,cmake_install.cmake,*.part,ui_*.h,*.pc,*.omf,Makefile.am,*.elc,*.la,litmain.sh,*.class,.git,*.aux,*.po,CTestTestfile.cmake,.svn,*.moc,.bzr,CMakeFiles,.pch,CMakeTmpQmake,*.lo,core-dumps,CVS,moc_*.cpp,*.rej,*.gmo,qrc_*.cpp
+exclude filters version=2
+exclude folders[$e]=/read-only/,/read-write/,/livecd/
+first run=true
+folders[$e]=$HOME/

@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_repositories_Kernel:_HEAD_standard]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/Kernel:/HEAD/standard/
+type=rpm-md
+priority=30
+keeppackages=1

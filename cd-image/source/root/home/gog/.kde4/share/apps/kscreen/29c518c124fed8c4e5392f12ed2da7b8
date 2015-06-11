@@ -1,1 +1,0 @@
-[ { "enabled" : true, "id" : "a9b52128db2466f35bbb5359e8bd59ee", "metadata" : { "fullname" : "xrandr-H225W-H225D1110101", "name" : "HDMI-0" }, "mode" : { "refresh" : 60.0, "size" : { "height" : 1080, "width" : 1920 } }, "pos" : { "x" : 0, "y" : 0 }, "primary" : true, "rotation" : 1 } ]

@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>15.03.23</version>
+                <version>15.06.05</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -32,6 +32,11 @@
                 <package name="yast2-storage"/>
                 <package name="yast2-control-center-qt"/>
                 <package name="libstdc++6"/>
+                <package name="ca-certificates-cacert"/>
+                <package name="ca-certificates-mozilla"/>
+                <package name="libcrypto32"/>
+                <package name="libssl32"/>
+                <package name="libtls3"/>
                 <package name="yast2-network"/>
 		<package name="SuSEfirewall2"/>
 		<package name="yast2-sound"/>
@@ -45,7 +50,7 @@
                 <package name="yast2-sudo"/>
                 <package name="yast2-users"/>
                 <package name="valgrind"/>
-                <package name="gwenview"/>
+                <package name="gwenview5"/>
                 <package name="phonon-backend-gstreamer"/>
                 <package name="gstreamer"/>
                 <package name="gstreamer-plugins-base"/>
@@ -67,9 +72,7 @@
                 <package name="upower"/>
                 <package name="smplayer"/>
                 <package name="chromium"/>
-                <package name="chromium-desktop-kde"/>
                 <package name="chromium-ffmpeg"/>
-                <package name="flash-player-kde4"/>
                 <package name="clementine"/>
                 <package name="baloo-file"/>
 		<package name="bzip2"/>
@@ -85,20 +88,18 @@
                 <package name="glibc-locale"/>
                 <package name="syslogd"/>
                 <package name="yast2-live-installer"/>
-                <package name="plasma-nm"/>
-                <package name="plasma-nm-pptp"/>
-                <package name="plasma-nm-openvpn"/>               
-                <package name="kdebase4-wallpapers"/>
+                <package name="plasma-nm5"/>
+                <package name="plasma-nm5-pptp"/>
+                <package name="plasma-nm5-openvpn"/>
+                <package name="plasma5-workspace-wallpapers"/>
                 <package name="net-tools"/>
-                <package name="kdebase4-session"/>
                 <package name="Mesa-demos"/>
-                <package name="kdebase4-workspace-branding-upstream"/>
+                <package name="powerdevil5"/>
                 <package name="xorg-x11-server"/>
-                <package name="kdebase4-workspace"/>
-                <package name="libkde4"/>
-                <package name="kdebase4"/>
+                <package name="ksysguard5"/>
+                <package name="systemsettings5"/>
+                <package name="kcm_sddm"/>
                 <package name="iputils"/>
-                <package name="plasmoid-folderview"/>
                 <package name="sysconfig"/>
                 <package name="pwdutils"/>
                 <package name="procps"/>
@@ -110,9 +111,9 @@
                 <package name="aaa_base"/>
                 <package name="wine"/>
                 <package name="xdg-menu"/>
-                <package name="kdm-branding-upstream"/>
-                <package name="kdebase4-runtime-branding-openSUSE"/>
-                <package name="kdm"/>
+                <package name="sddm-branding-openSUSE"/>
+                <package name="kdeclarative-components"/>
+                <package name="sddm"/>
                 <package name="gawk"/>
                 <package name="Mesa"/>
                 <package name="libtxc_dxtn"/>
@@ -172,23 +173,22 @@
                 <package name="desktop-file-utils"/>
                 <package name="plib"/>
                 <package name="aria2"/>
-                <package name="kdelibs4"/>
-                <package name="kdelibs4-branding-openSUSE"/>
-                <package name="kde-gtk-config"/>
+                <package name="kwin5"/>
+                <package name="plasma5-desktop-branding-openSUSE"/>
+                <package name="kde-gtk-config5"/>
                 <package name="aalib"/>
                 <package name="ark"/>
                 <package name="kcalc"/>
-                <package name="kdelibs4-core"/>
-                <package name="kde4-filesystem"/>
-                <package name="kdebase4-libkonq"/>
-                <package name="kdebase4-runtime"/>
+                <package name="kscreen5"/>
+                <package name="plasma5-desktop"/>
+                <package name="plasma5-session"/>
+                <package name="plasma5-workspace-branding-openSUSE"/>
                 <package name="ffmpeg"/>
                 <package name="krdc"/>
                 <package name="dosfstools"/>
                 <package name="ksnapshot"/>
                 <package name="update-desktop-files"/>
                 <package name="kdedesktopcheck"/>
-                <package name="kdebase4-nsplugin"/>
                 <package name="gdb"/>
                 <package name="unrar"/>
                 <package name="libglut3"/>
@@ -247,9 +247,6 @@
                 <package name="hdparm"/>
                 <package name="x11perf"/>
                 <package name="systemd-sysvinit"/>
-                <package name="kactivities4"/>
-                <package name="kdebase4-openSUSE"/>
-                <package name="desktop-data-openSUSE"/>
                 <package name="kdialog"/>
                 <package name="vaapi-intel-driver"/>
                 <package name="vaapi-tools"/>
@@ -307,7 +304,6 @@
 		<package name="scrot"/>
 		<package name="qps"/>
 		<package name="wmctrl"/>
-		<package name="simplescreenrecorder"/>
 		<package name="Mesa-libOpenCL-devel"/>
                 <package name="Mesa-libOpenCL1"/>
 		<package name="ocl-icd-devel"/>
@@ -346,7 +342,6 @@
 		<package name="libXtst6"/>
 		<package name="gconf2"/>
 		<package name="mpv"/>
-		<package name="baka-mplayer"/>
 		<package name="lxde-common"/>
 		<package name="lxshortcut"/>
 		<package name="lxsession"/>
@@ -367,19 +362,21 @@
 		<package name="Mesa-libd3d"/>
 		<package name="libGLEW1_12"/>
 		<package name="dbus-1-x11"/>
-		<package name="gnome-screenshot"/>
 		<package name="fuse-exfat"/>
 		<package name="chntpw"/>
 		<package name="ucode-amd"/>
 		<package name="ucode-intel"/>
 		<package name="weston"/>
-		<package name="kmscon"/>
+                <package name="libSM6"/>
+                <package name="libKF5KDcraw5"/>
+                <package name="libKF5Baloo2"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
                 <package name="paratype-pt-mono-fonts"/>
 <!--lib32-->
 		<package name="libudev1-32bit"/>
+                <package name="glibc-locale-32bit"/>
 		<package name="libpci3-32bit"/>
 		<package name="Mesa-libd3d-32bit"/>
 		<package name="gnome-keyring-32bit"/>
@@ -406,7 +403,11 @@
 		<package name="libXtst6-32bit"/>
 		<package name="gconf2-32bit"/>
 		<package name="libgphoto2-6-32bit"/>
+                <package name="libcrypto32-32bit"/>
+                <package name="libssl32-32bit"/>
+                <package name="libtls3-32bit"/>
 		<package name="libGLEW1_12-32bit"/>
+                <package name="cups-libs-32bit"/>
         </packages>
         <packages type="bootstrap">
                 <package name="glibc-locale"/>
@@ -425,6 +426,18 @@
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/Kernel:/HEAD/standard/"/>
+        </repository>
+        <repository type="rpm-md" priority="30" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/KDE:/Qt54/openSUSE_Factory/"/>
+        </repository>       
+        <repository type="rpm-md" priority="30" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" priority="30" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Extra/KDE_Unstable_Frameworks_openSUSE_Factory/"/>
+        </repository>
+        <repository type="rpm-md" priority="30" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Applications/KDE_Unstable_Frameworks_openSUSE_Factory/"/>
         </repository>
 	<repository type="rpm-md" priority="16" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/multimedia:/libs/openSUSE_Factory/"/>

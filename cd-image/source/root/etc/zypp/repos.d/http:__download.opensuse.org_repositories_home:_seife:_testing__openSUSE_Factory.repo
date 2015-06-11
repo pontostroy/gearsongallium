@@ -3,4 +3,5 @@ enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/home:/seife:/testing//openSUSE_Factory/
 type=rpm-md
+priority=110
 keeppackages=1

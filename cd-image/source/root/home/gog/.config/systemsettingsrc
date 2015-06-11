@@ -1,0 +1,16 @@
+[Basic Settings]
+Indexing-Enabled=false
+
+[General]
+exclude folders[$e]=/read-only/,/read-write/,/livecd/
+first run=true
+folders[$e]=$HOME/
+
+[MainWindow]
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAAAAB4AAAAPSAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAA
+ToolBarsMovable=Disabled
+Window-Maximized 1080x1920=true
+
+[PlasmaRunnerManager]
+LaunchCounts=
