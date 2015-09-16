@@ -7,7 +7,7 @@ BELAGIOBIN="/usr/bin/omxregister-bellagio"
 GST="gst-launch-1.0"
 GSTIN="gst-inspect-1.0"
 ##FPS 
-FPSIN="30/1"
+FPSIN="25/1"
 #FPSOUT="25/1"
 TIME=$(date +"%Y-%m-%d_%H%M%S")
 DIRM="$HOME"

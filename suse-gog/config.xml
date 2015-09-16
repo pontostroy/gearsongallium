@@ -153,8 +153,8 @@
 		<package name="Mesa-libEGL1"/>
 		<package name="Mesa-libGL1"/>
 		<package name="Mesa-libglapi0 "/>
-		<package name="libLLVM37"/>
-		<package name="libclang37"/>
+		<package name="libLLVM38"/>
+		<package name="libclang38"/>
 		<package name="openSUSE-release"/>
 		<package name="pam"/>
 		<package name="pam-config"/>

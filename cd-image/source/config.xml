@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>15.06.05</version>
+                <version>15.08.29</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -34,9 +34,9 @@
                 <package name="libstdc++6"/>
                 <package name="ca-certificates-cacert"/>
                 <package name="ca-certificates-mozilla"/>
-                <package name="libcrypto32"/>
-                <package name="libssl32"/>
-                <package name="libtls3"/>
+                <package name="libcrypto35"/>
+                <package name="libssl35"/>
+                <package name="libtls6"/>
                 <package name="yast2-network"/>
 		<package name="SuSEfirewall2"/>
 		<package name="yast2-sound"/>
@@ -62,6 +62,7 @@
 		<package name="libXtst6"/>
                 <package name="xf86-video-ati"/>
                 <package name="xf86-video-intel"/>
+                <package name="xf86-video-amdgpu"/>
                 <package name="xf86-video-qxl"/>
                 <package name="xf86-video-nouveau"/>
                 <package name="okular"/>
@@ -156,7 +157,6 @@
                 <package name="kvkbd"/>
                 <package name="alsa-oss"/>
                 <package name="kwrite"/>
-                <package name="pm-utils"/>
                 <package name="libglpng1"/>
                 <package name="libstdc++6"/>
                 <package name="dolphin"/>
@@ -297,18 +297,17 @@
                 <package name="libpng12-devel"/>
                 <package name="libvorbis-devel"/>
                 <package name="glu-devel"/>
-                <package name="gtk3-theme-oxygen"/>
                 <package name="libjansson-devel"/>
                 <package name="llvm-r600-clang"/>
                 <package name="ncurses-devel"/>
 		<package name="scrot"/>
 		<package name="qps"/>
 		<package name="wmctrl"/>
-		<package name="Mesa-libOpenCL-devel"/>
-                <package name="Mesa-libOpenCL1"/>
+	<!--	<package name="Mesa-libOpenCL-devel"/>
+              <package name="Mesa-libOpenCL1"/> 
 		<package name="ocl-icd-devel"/>
                 <package name="libOpenCL1"/>
-                <package name="libclc-devel"/>
+                <package name="libclc-devel"/>-->
                 <package name="grub"/>
                 <package name="grub2"/>
                 <package name="grub2-i386-pc"/>
@@ -369,7 +368,6 @@
 		<package name="weston"/>
                 <package name="libSM6"/>
                 <package name="libKF5KDcraw5"/>
-                <package name="libKF5Baloo2"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
@@ -403,9 +401,9 @@
 		<package name="libXtst6-32bit"/>
 		<package name="gconf2-32bit"/>
 		<package name="libgphoto2-6-32bit"/>
-                <package name="libcrypto32-32bit"/>
-                <package name="libssl32-32bit"/>
-                <package name="libtls3-32bit"/>
+                <package name="libcrypto35-32bit"/>
+                <package name="libssl35-32bit"/>
+                <package name="libtls6-32bit"/>
 		<package name="libGLEW1_12-32bit"/>
                 <package name="cups-libs-32bit"/>
         </packages>
@@ -425,10 +423,10 @@
                 <source path="http://download.opensuse.org/factory/repo/non-oss/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/Kernel:/HEAD/standard/"/>
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Tumbleweed/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Qt54/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Qt55/openSUSE_Factory/"/>
         </repository>       
         <repository type="rpm-md" priority="30" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Factory/"/>
