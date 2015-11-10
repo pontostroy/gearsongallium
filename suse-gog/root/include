@@ -24,7 +24,6 @@ export TRANSFER_ERRORS_FILE=/tmp/transfer.errors
 export UFONT=/usr/share/fbiterm/fonts/b16.pcf.gz
 export CONSOLE_FONT=/usr/share/kbd/consolefonts/default8x16.gz
 export HYBRID_PERSISTENT_FS=btrfs
-export HYBRID_PERSISTENT_OPTS=""
 export HYBRID_PERSISTENT_ID=83
 export HYBRID_PERSISTENT_DIR=/read-write
 export UTIMER_INFO=/dev/utimer
@@ -32,6 +31,7 @@ export bootLoaderOK=0
 export enablePlymouth=1
 export IFS_ORIG=$IFS
 export MEDIACHECK_OK_TIMER=5
+export partitionerWriteStatus=0
 
 #======================================
 # lookup
@@ -240,10 +240,10 @@ function importFile {
     sed -i -e s"#'\+#'\\\\''#g" /tmp/srcme
     # add '...' quoting to values
     sed -i -e s"#\(^[a-zA-Z0-9_]\+\)=\(.*\)#$prefix\1='\2'#" /tmp/srcme
-    source /tmp/srcme
+    source /tmp/srcme &>/dev/null
     while read line;do
         key=$(echo "$line" | cut -d '=' -f1)
-        eval "export $key"
+        eval "export $key" &>/dev/null
     done < /tmp/srcme
     if [ ! -z "$ERROR_INTERRUPT" ];then
         Echo -e "$ERROR_INTERRUPT"
@@ -315,13 +315,21 @@ function systemException {
     local what=$2
     local nuldev=/dev/null
     local ttydev=$ELOG_EXCEPTION
-    if [ ! -e $nuldev ];then
-        nuldev=/mnt/$nuldev
-    fi
-    if [ ! -e $ttydev ];then
-        ttydev=/mnt/$ttydev
-    fi
+    local prefix=/mnt
+    for dev in $nuldev $prefix/$nuldev; do
+        if [ -e $dev ];then
+            nuldev=$dev; break
+        fi
+    done
+    for dev in $ttydev $prefix/$ttydev; do
+        if [ -e $dev ];then
+            ttydev=$dev; break
+        fi
+    done
     hideSplash
+    if [ $enablePlymouth -eq 1 ]; then
+        plymouth quit
+    fi
     if [ $what = "reboot" ];then
         if cat /proc/cmdline 2>/dev/null | grep -qi "kiwidebug=1";then
             what="shell"
@@ -348,16 +356,12 @@ function systemException {
         read
     ;;
     "shell")
-        Echo "shellException: providing shell..."
         if [ ! -z "$DROPBEAR_PID" ] && [ ! -z "$IPADDR" ];then
             Echo "You can connect via ssh to this system"
             Echo "ssh root@${IPADDR}"
         fi
-        if ! setctsid $ttydev /bin/true;then
-            /bin/bash -i
-        else
-            setctsid $ttydev /bin/bash -i
-        fi
+        echo reset > /root/.bashrc
+        setctsid $ttydev sulogin -e $ttydev
     ;;
     "user_reboot")
         Echo "reboot triggered by user"
@@ -449,7 +453,7 @@ function createInitialDevices {
     #--------------------------------------
     mkdir -p -m 0755 /run
     mkdir -p -m 0755 /var/run
-    if [[ ! $kiwi_iname =~ SLE.11 ]];then
+    if [[ ! $kiwi_iname =~ SLE.11 ]] && [[ ! $kiwi_iname =~ "rhel-06" ]] ; then
         mount -t tmpfs -o mode=0755,nodev,nosuid tmpfs /run
         mount --bind /run /var/run
     fi
@@ -712,7 +716,10 @@ function udevSystemStop {
         umountProc=1
     fi
     if [ -x $udevadmExec ];then
-        $udevadmExec control --exit
+        # ignore error messages here, because if the process is not
+        # stopped properly here, it will be killed the hard way a few
+        # lines down
+        $udevadmExec control --exit &>/dev/null
     fi
     if [ -z "$UDEVD_PID" ];then
         . /iprocs
@@ -923,6 +930,7 @@ function installBootLoader {
         x86_64-extlinux) installBootLoaderSyslinux ;;
         s390-zipl)       installBootLoaderS390 ;;
         s390x-zipl)      installBootLoaderS390 ;;
+        s390x-grub2_s390x_emu)  installBootLoaderS390Grub ;;
         aarch64-uboot)   installBootLoaderUBoot ;;
         aarch64-grub2)   installBootLoaderGrub2 ;;
         *)
@@ -1005,6 +1013,80 @@ function installBootLoaderUBoot {
     else
         runHook installUBoot "$@"
     fi
+}
+#======================================
+# installBootLoaderS390Grub
+#--------------------------------------
+function installBootLoaderS390Grub {
+    # /.../
+    # Create/Delete
+    # - create active_devices.txt
+    # - delete kiwi initrd/kernel .vmx files
+    # Run grub2-mkconfig
+    # - create new boot/grub2/grub.cfg
+    # Run grub2-install
+    # - creates a new boot/zipl/config
+    # - creates zipl initrd which loads grub2/kexec
+    # - install zipl
+    # ----
+    local IFS=$IFS_ORIG
+    local confTool=grub2-mkconfig
+    local instTool=grub2-install
+    local confFile_grub=/boot/grub2/grub.cfg
+    local active_devs=/boot/zipl/active_devices.txt
+    local deviceID=$(cat /sys/firmware/ipl/device)
+    #======================================
+    # mount zipl jump partition
+    #--------------------------------------
+    if [ ! -z "$kiwi_JumpPart" ];then
+        local jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
+        local label=$(blkid $jdev -s LABEL -o value)
+        if [ "$label" = "ZIPL" ];then
+            mkdir -p /boot/zipl
+            if ! mount $jdev /boot/zipl;then
+                Echo "Failed to mount zipl boot partition"
+                return 1
+            fi
+        fi
+    fi
+    #======================================
+    # Create active devices information
+    #--------------------------------------
+    echo $deviceID > $active_devs
+    #======================================
+    # create grub2 configuration
+    #--------------------------------------
+    if ! lookup $confTool &>/dev/null;then
+        Echo "System image doesn't provide $confTool"
+        Echo "Can't create bootloader configuration"
+        return 1
+    fi
+    $confTool > $confFile_grub
+    if [ ! $? = 0 ];then
+        Echo "Failed to create grub2 boot configuration"
+        return 1
+    fi
+    #======================================
+    # Run grub2-install
+    #--------------------------------------
+    if ! lookup $instTool &>/dev/null;then
+        Echo "System image doesn't provide $instTool"
+        Echo "Can't install bootloader"
+        return 1
+    fi
+    if ! $instTool;then
+        Echo "Failed to install bootloader"
+        return 1
+    fi
+    #======================================
+    # Delete kiwi initrd files
+    #--------------------------------------
+    rm -f /boot/zipl/*.vmx
+    #======================================
+    # umount zipl boot partition
+    #--------------------------------------
+    mountpoint -q /boot/zipl && umount /boot/zipl
+    return 0
 }
 #======================================
 # installBootLoaderS390
@@ -1117,22 +1199,37 @@ function installBootLoaderGrub2 {
     #======================================
     # check for elilo compat mode
     #--------------------------------------
+    export elilo_compat=0
     if [ $isEFI -eq 1 ] && [ -e $product ] && [ -e $elilo_efi ];then
-        product=$(readlink $product)
+        local product=$(readlink $product)
+        local vendor=SuSE
+        local efipath=/boot/efi/EFI
         if [[ "$product" =~ "SUSE_SLE" ]];then
+            #======================================
+            # check for recovery uuid
+            #--------------------------------------
+            if [ -z "$reco_uuid" ]; then
+                reco_uuid=$(blkid -o value -s UUID -t LABEL=recovery)
+            fi
+            #======================================
+            # check for bootloader displayname
+            #--------------------------------------
+            if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
+                kiwi_oemtitle=$kiwi_displayname
+            fi
             #======================================
             # write elilo.conf
             #--------------------------------------
             . /etc/default/grub
             local timeout=10
-            if [ ! -z "$KIWI_BOOT_TIMEOUT" ];then
-                timeout=$KIWI_BOOT_TIMEOUT
+            if [ ! -z "$kiwi_boot_timeout" ];then
+                timeout=$kiwi_boot_timeout
             fi
 cat > /etc/elilo.conf << EOF
 # Modified by YaST2.
 timeout = $timeout
-##YaST - boot_efilabel = "SUSE Linux Enterprise Server 11"
-vendor-directory = BOOT
+##YaST - boot_efilabel = "$kiwi_oemtitle"
+vendor-directory = $vendor
 secure-boot = on
 prompt
 image  = /boot/vmlinuz
@@ -1140,9 +1237,19 @@ image  = /boot/vmlinuz
 initrd = /boot/initrd
 label  = linux
 append = "$GRUB_CMDLINE_LINUX_DEFAULT"
-description = Linux
+description = "$kiwi_oemtitle"
 root = $(getDiskID $imageRootDevice)
 EOF
+            #====================================================
+            # setup kernel symlinks
+            #----------------------------------------------------
+            local kversion=$(uname -r)
+            ln -sf /boot/vmlinuz-$kversion /boot/vmlinuz
+            ln -sf /boot/initrd-$kversion /boot/initrd
+            #====================================================
+            # create vendor directory
+            #----------------------------------------------------
+            mkdir -p $efipath/$vendor
             #======================================
             # update sysconfig/bootloader
             #--------------------------------------
@@ -1155,6 +1262,17 @@ EOF
             # copy boot files to /boot/efi
             # ----
             elilo -vv
+            #====================================================
+            # Append recovery entry to elilo written grub.cfg
+            #----------------------------------------------------
+            if [ "$kiwi_oemrecovery" = "true" ];then
+cat >> $efipath/$vendor/grub.cfg << EOF
+menuentry 'Recovery' --class os {
+    search --no-floppy --fs-uuid --set=root $reco_uuid
+    configfile /boot/grub2/grub.cfg
+}
+EOF
+            fi
             #======================================
             # write efi variable to NvRam
             #--------------------------------------
@@ -1162,9 +1280,23 @@ EOF
             # title for this system
             # ----
             elilo --refresh-EBM -vv
+            #====================================================
+            # create versionized kernel/initrd
+            #----------------------------------------------------
+            cp -a $efipath/$vendor/vmlinuz $efipath/$vendor/vmlinuz-$kversion
+            cp -a $efipath/$vendor/initrd $efipath/$vendor/initrd-$kversion
+            #====================================================
+            # sync vendor directory with standard boot path
+            #----------------------------------------------------
+            cp -a $efipath/$vendor/* $efipath/BOOT
+            #======================================
+            # set flag to indicate elilo is used
+            #--------------------------------------
+            elilo_compat=1
             #======================================
             # return early for elilo case
             #--------------------------------------
+            mountpoint -q /boot/efi && umount /boot/efi
             return 0
         fi
     fi
@@ -1192,8 +1324,9 @@ EOF
     # install grub2 in BIOS mode
     #--------------------------------------
     if [ ! -z "$kiwi_OfwGrub" ];then
+        local prepdev=$(ddn $imageDiskDevice $kiwi_OfwGrub)
         # install powerpc grub2
-        $instTool $imagePrepDevice 1>&2
+        $instTool $prepdev 1>&2
         if [ ! $? = 0 ];then
             Echo "Failed to install boot loader"
             return 1
@@ -1256,18 +1389,18 @@ function installBootLoaderSyslinuxRecovery {
     if [ -e $syslmbr ];then
         if [ $loader = "syslinux" ];then
             if ! syslinux $imageRecoveryDevice;then
-                Echo "Failed to install boot loader"
+                Echo "Failed to install recovery boot loader"
                 return 1
             fi
         else
             if ! extlinux --install /reco-save/boot/syslinux;then
-                Echo "Failed to install boot loader"
+                Echo "Failed to install recovery boot loader"
                 return 1
             fi
         fi
     else
         Echo "Image doesn't have syslinux (mbr.bin) installed"
-        Echo "Can't install boot loader"
+        Echo "Can't install recovery boot loader"
         return 1
     fi
     return 0
@@ -1284,19 +1417,26 @@ function installBootLoaderGrubRecovery {
     local IFS=$IFS_ORIG
     local input=/grub.input
     local gdevreco=$((recoid - 1))
-    echo "device (hd0) $imageDiskDevice" > $input
+    if [ ! -e /etc/redhat-release ];then
+        echo "device (hd0) $imageDiskDevice" > $input
+    fi
     echo "root (hd0,$gdevreco)"  >> $input
     echo "setup (hd0,$gdevreco)" >> $input
     echo "quit"          >> $input
     if lookup grub &>/dev/null;then
+        if [ -e /etc/redhat-release ];then
+            mount -L recovery /mnt
+            (cd /mnt/boot/grub && ln -s menu.lst grub.conf)
+            umount /mnt
+        fi
         if ! grub --batch < $input 1>&2;then
-            Echo "Failed to install boot loader"
+            Echo "Failed to install recovery boot loader"
             return 1
         fi
         rm -f $input
     else
         Echo "Image doesn't have grub installed"
-        Echo "Can't install boot loader"
+        Echo "Can't install recovery boot loader"
         return 1
     fi
     return 0
@@ -1316,12 +1456,39 @@ function installBootLoaderGrub2Recovery {
     local confFile_uefi=/boot/efi/EFI/BOOT/grub.cfg
     local confFile_grub=$confFile_grub_bios
     local bios_grub=/reco-save/boot/grub2/i386-pc
+    local isEFI=0
+    #======================================
+    # check for EFI and mount EFI partition
+    #--------------------------------------
+    if [ ! -z "$kiwi_JumpPart" ];then
+        local jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
+        local label=$(blkid $jdev -s LABEL -o value)
+        if [ "$label" = "EFI" ];then
+            mkdir -p /boot/efi
+            if ! mount $jdev /boot/efi;then
+                Echo "Failed to mount EFI boot partition"
+                return 1
+            fi
+            isEFI=1
+        fi
+    fi
+    #======================================
+    # check for elilo compat mode
+    #--------------------------------------
+    if [ "$elilo_compat" -eq 1 ];then
+        # the recovery menu entry has been appended already
+        # as part of the regular installBootLoaderGrub2. This is
+        # done to ensure the entry is recreated after a recovery
+        # run because elilo doesn't support that
+        return 0
+    fi
     #======================================
     # check tool status
     #--------------------------------------
     if ! lookup $confTool &>/dev/null;then
         Echo "Image doesn't have grub2 installed"
-        Echo "Can't install boot loader"
+        Echo "Can't install recovery boot loader"
+        mountpoint -q /boot/efi && umount /boot/efi
         return 1
     fi
     #======================================
@@ -1330,7 +1497,7 @@ function installBootLoaderGrub2Recovery {
     # this allows a bios to directly jump there, e.g with a function key
     grub2-bios-setup -f -d $bios_grub $imageRecoveryDevice 1>&2
     if [ ! $? = 0 ];then
-        Echo "Failed to install boot loader"
+        Echo "Failed to install recovery boot loader"
     fi
     #======================================
     # create custom recovery entry
@@ -1339,7 +1506,7 @@ cat > /etc/grub.d/40_custom << DONE
 #!/bin/bash
 cat << EOF
 menuentry 'Recovery' --class os {
-    set root='hd0,$recoid'
+    search --no-floppy --fs-uuid --set=root $reco_uuid
     configfile /boot/grub2/grub.cfg
 }
 EOF
@@ -1349,21 +1516,14 @@ DONE
     #--------------------------------------
     $confTool > $confFile_grub
     if [ ! $? = 0 ];then
-        Echo "Failed to create grub2 boot configuration"
+        Echo "Failed to create recovery grub2 boot configuration"
+        mountpoint -q /boot/efi && umount /boot/efi
         return 1
     fi
-    if [ ! -z "$kiwi_JumpPart" ];then
-        local jdev=$(ddn $imageDiskDevice $kiwi_JumpPart)
-        local label=$(blkid $jdev -s LABEL -o value)
-        if [ "$label" = "EFI" ];then
-            if mount $jdev /boot/efi;then
-                if [ -e $confFile_uefi ];then
-                    cp $confFile_grub $confFile_uefi
-                    umount /boot/efi
-                fi
-            fi
-        fi
+    if [ $isEFI -eq 1 ] && [ -e $confFile_uefi ];then
+        cp $confFile_grub $confFile_uefi
     fi
+    mountpoint -q /boot/efi && umount /boot/efi
     return 0
 }
 #======================================
@@ -1569,6 +1729,7 @@ function setupBootLoader {
         x86_64-extlinux) eval setupBootLoaderSyslinux $para ;;
         s390-zipl)       eval setupBootLoaderS390 $para ;;
         s390x-zipl)      eval setupBootLoaderS390 $para ;;
+        s390x-grub2_s390x_emu)  eval setupBootLoaderS390Grub $para ;;
         ppc*)            eval setupBootLoaderYaboot $para ;;
         aarch64-uboot)   eval setupBootLoaderUBoot $para ;;
         aarch64-grub2)   eval setupBootLoaderGrub2 $para ;;
@@ -1587,9 +1748,9 @@ function setupBootLoader {
 function setupBootThemes {
     local IFS=$IFS_ORIG
     local destprefix=$1
-    local srcprefix=$2
-    if [ -z "$srcprefix" ];then
-        srcprefix=/mnt
+    local prefix=$2
+    if [ -z "$prefix" ];then
+        prefix=/mnt
     fi
     #======================================
     # Splash theme setup
@@ -1599,7 +1760,7 @@ function setupBootThemes {
         #======================================
         # gfxboot default setup
         #--------------------------------------
-        local orig_bootsplash=$srcprefix/etc/sysconfig/bootsplash
+        local orig_bootsplash=$prefix/etc/sysconfig/bootsplash
         local inst_bootsplash=$destprefix/etc/sysconfig/bootsplash
         mkdir -p $destprefix/etc/sysconfig
         touch $inst_bootsplash
@@ -1621,7 +1782,7 @@ function setupBootThemes {
         # plymouth splash
         #--------------------------------------
         if lookup plymouthd &>/dev/null;then
-            local orig_plymouthconf=$srcprefix/etc/plymouth/plymouth.conf
+            local orig_plymouthconf=$prefix/etc/plymouth/plymouth.conf
             local inst_plymouthconf=$destprefix/etc/plymouth/plymouth.conf
             mkdir -p $destprefix/etc/plymouth
             touch $inst_plymouthconf
@@ -1673,6 +1834,7 @@ function setupBootLoaderRecovery {
         x86_64-extlinux) eval setupBootLoaderSyslinuxRecovery $para ;;
         s390-zipl)       eval setupBootLoaderS390Recovery $para ;;
         s390x-zipl)      eval setupBootLoaderS390Recovery $para ;;
+        s390x-grub2_s390x_emu)  eval setupBootLoaderS390Recovery $para ;;
         *)
         systemException \
             "*** boot loader setup for $arch-$loader not implemented ***" \
@@ -1709,7 +1871,7 @@ function setupBootLoaderSyslinuxRecovery {
     if [ -z "$fbmode" ];then
         fbmode=$DEFAULT_VGA
     fi
-    rdev_recovery=$OEM_RECOVERY
+    rdev_recovery=$imageRootDevice
     diskByID=$(getDiskID $rdev_recovery)
     if [ "$FSTYPE" = "zfs" ];then
         diskByID="ZFS=kiwipool/ROOT/system-1"
@@ -1746,7 +1908,7 @@ function setupBootLoaderSyslinuxRecovery {
     #======================================
     # create recovery entry
     #--------------------------------------
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         #======================================
         # Reboot
         #--------------------------------------
@@ -1774,7 +1936,7 @@ function setupBootLoaderSyslinuxRecovery {
             echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
             echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
             echo " KIWI_RECOVERY=$recoid"                  >> $conf
-            echo " quiet showopts"                         >> $conf
+            echo " showopts"                               >> $conf
         fi
         #======================================
         # Restore
@@ -1796,7 +1958,7 @@ function setupBootLoaderSyslinuxRecovery {
             echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
             echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
             echo " KIWI_RECOVERY=$recoid RESTORE=1"        >> $conf
-            echo " quiet showopts"                         >> $conf
+            echo " showopts"                               >> $conf
         fi
     fi
 }
@@ -1820,7 +1982,7 @@ function setupBootLoaderGrubRecovery {
         fbmode=$DEFAULT_VGA
     fi
     gdev_recovery="(hd0,$gdevreco)"
-    rdev_recovery=$OEM_RECOVERY
+    rdev_recovery=$imageRootDevice
     diskByID=$(getDiskID $rdev_recovery)
     if [ "$FSTYPE" = "zfs" ];then
         diskByID="ZFS=kiwipool/ROOT/system-1"
@@ -1841,7 +2003,7 @@ function setupBootLoaderGrubRecovery {
     #======================================
     # create recovery entry
     #--------------------------------------
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         #======================================
         # Make the cancel option default
         #--------------------------------------
@@ -1869,7 +2031,7 @@ function setupBootLoaderGrubRecovery {
             echo -n " $KIWI_INITRD_PARAMS"                >> $menu
             echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
             echo -n " KIWI_RECOVERY=$recoid"              >> $menu
-            echo " quiet showopts"                        >> $menu
+            echo " showopts"                              >> $menu
             echo " module /boot/$initrd"                  >> $menu
         else
             echo -n " kernel $gdev_recovery/boot/$kernel" >> $menu
@@ -1881,7 +2043,7 @@ function setupBootLoaderGrubRecovery {
             echo -n " $KIWI_INITRD_PARAMS"                >> $menu
             echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
             echo -n " KIWI_RECOVERY=$recoid"              >> $menu
-            echo " quiet showopts"                        >> $menu
+            echo " showopts"                              >> $menu
             echo " initrd $gdev_recovery/boot/$initrd"    >> $menu
         fi
         #======================================
@@ -1901,7 +2063,7 @@ function setupBootLoaderGrubRecovery {
             echo -n " $KIWI_INITRD_PARAMS"                >> $menu
             echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
             echo -n " KIWI_RECOVERY=$recoid"              >> $menu
-            echo " quiet showopts"                        >> $menu
+            echo " showopts"                              >> $menu
             echo " module /boot/$initrd"                  >> $menu
         else
             echo -n " kernel $gdev_recovery/boot/$kernel" >> $menu
@@ -1913,7 +2075,7 @@ function setupBootLoaderGrubRecovery {
             echo -n " $KIWI_INITRD_PARAMS"                >> $menu
             echo -n " $KIWI_KERNEL_OPTIONS"               >> $menu
             echo -n " KIWI_RECOVERY=$recoid RESTORE=1"    >> $menu
-            echo " quiet showopts"                        >> $menu
+            echo " showopts"                              >> $menu
             echo " initrd $gdev_recovery/boot/$initrd"    >> $menu
         fi
     fi
@@ -1936,7 +2098,7 @@ function setupBootLoaderGrub2Recovery {
     #======================================
     # setup ID device names
     #--------------------------------------
-    local rootByID=$(getDiskID $OEM_RECOVERY)
+    local rootByID=$(getDiskID $imageRootDevice)
     local diskByID=$(getDiskID $imageDiskDevice)
     if [ "$FSTYPE" = "zfs" ];then
         rootByID="ZFS=kiwipool/ROOT/system-1"
@@ -1944,7 +2106,7 @@ function setupBootLoaderGrub2Recovery {
     #======================================
     # operate only in recovery mode
     #--------------------------------------
-    if [ -z "$OEM_RECOVERY" ];then
+    if [ -z "$kiwi_oemrecovery" ];then
         return
     fi
     #======================================
@@ -1988,7 +2150,7 @@ insmod vbe
 insmod vga
 insmod gzio
 set default=0
-set root='hd0,$recoid'
+search --no-floppy --fs-uuid --set=root $reco_uuid
 set font=/boot/unicode.pf2
 if loadfont \$font ;then
     set gfxmode=auto
@@ -2020,22 +2182,22 @@ EOF
     if xenServer $kernel $mountPrefix;then
 cat >> $conf << EOF
 menuentry 'Recover/Repair System' --class os {
-    set root='hd0,$recoid'
+    search --no-floppy --fs-uuid --set=root $reco_uuid
     echo Loading Xen...
     multiboot /boot/xen.gz dummy
     echo Loading $kernel...
     set gfxpayload=keep
-    module /boot/$kernel dummy $cmdline showopts
+    module /boot/$kernel dummy $cmdline $kiwi_cmdline showopts
     echo Loading $initrd...
     module /boot/$initrd dummy
 }
 menuentry 'Restore Factory System' --class os {
-    set root='hd0,$recoid'
+    search --no-floppy --fs-uuid --set=root $reco_uuid
     echo Loading Xen...
     multiboot /boot/xen.gz dummy
     echo Loading $kernel...
     set gfxpayload=keep
-    module /boot/$kernel dummy $cmdline RESTORE=1 showopts
+    module /boot/$kernel dummy $cmdline $kiwi_cmdline RESTORE=1 showopts
     echo Loading $initrd...
     module /boot/$initrd dummy
 }
@@ -2043,18 +2205,18 @@ EOF
     else
 cat >> $conf << EOF
 menuentry 'Recover/Repair System' --class os {
-    set root='hd0,$recoid'
+    search --no-floppy --fs-uuid --set=root $reco_uuid
     echo Loading $kernel...
     set gfxpayload=keep
-    \$linux /boot/$kernel $cmdline showopts
+    \$linux /boot/$kernel $cmdline $kiwi_cmdline showopts
     echo Loading $initrd...
     \$initrd /boot/$initrd
 }
 menuentry 'Restore Factory System' --class os {
-    set root='hd0,$recoid'
+    search --no-floppy --fs-uuid --set=root $reco_uuid
     echo Loading $kernel...
     set gfxpayload=keep
-    \$linux /boot/$kernel $cmdline RESTORE=1 showopts
+    \$linux /boot/$kernel $cmdline $kiwi_cmdline RESTORE=1 showopts
     echo Loading $initrd...
     \$initrd /boot/$initrd
 }
@@ -2077,6 +2239,137 @@ function setupBootLoaderUBoot {
     else
         runHook setupUBoot "$@"
     fi
+}
+#======================================
+# setupBootLoaderS390Grub
+#--------------------------------------
+function setupBootLoaderS390Grub {
+    # /.../
+    # create grub2 configuration for s390
+    # ----
+    local IFS=$IFS_ORIG
+    #======================================
+    # function paramters
+    #--------------------------------------
+    local mountPrefix=$1  # mount path of the image
+    local destsPrefix=$2  # base dir for the config files
+    local gnum=$3         # grub boot partition ID
+    local rdev=$4         # grub root partition
+    local gfix=$5         # grub title postfix
+    local swap=$6         # optional swap partition
+    #======================================
+    # local variables
+    #--------------------------------------
+    local kname=$(uname -r)
+    local loader_type=grub2
+    local timeout=10
+    local title
+    local cmdline
+    local vesa
+    #======================================
+    # setup path names
+    #--------------------------------------
+    local orig_sysimg_profile=$mountPrefix/image/.profile
+    local inst_default_grub=$destsPrefix/etc/default/grub
+    local inst_default_grubdev=$destsPrefix/etc/default/grub_installdevice
+    local inst_default_grubmap=$destsPrefix/boot/grub2/device.map
+    local inst_sysb=$destsPrefix/etc/sysconfig/bootloader
+    #======================================
+    # setup ID device names
+    #--------------------------------------
+    local rootByID=$(getDiskID $rdev)
+    local swapByID=$(getDiskID $swap swap)
+    local diskByID=$(getDiskID $imageDiskDevice)
+    if [ "$FSTYPE" = "zfs" ];then
+        rootByID="ZFS=kiwipool/ROOT/system-1"
+    fi
+    #======================================
+    # check for system image .profile
+    #--------------------------------------
+    if [ -f $orig_sysimg_profile ];then
+        importFile < $orig_sysimg_profile
+    fi
+    #======================================
+    # setup title name
+    #--------------------------------------
+    if [ -z "$gfix" ];then
+        gfix="unknown"
+    fi
+    if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
+        kiwi_oemtitle=$kiwi_displayname
+    fi
+    if ! echo $gfix | grep -E -q "OEM|USB|VMX|NET|unknown";then
+        title=$(makeLabel "$gfix")
+    elif [ -z "$kiwi_oemtitle" ];then
+        title=$(makeLabel "$kname [ $gfix ]")
+    else
+        title=$(makeLabel "$kiwi_oemtitle [ $gfix ]")
+    fi
+    #======================================
+    # check for kernel options
+    #--------------------------------------
+    if [ ! -z "$rootByID" ];then
+        cmdline="$cmdline root=$rootByID"
+    fi
+    if [ ! -z "$diskByID" ];then
+        cmdline="$cmdline disk=$diskByID"
+    fi
+    if [ ! -z "$swapByID" ];then
+        cmdline="$cmdline resume=$swapByID"
+    fi
+    if [ ! -z "$kiwi_cmdline" ];then
+        cmdline="$cmdline $kiwi_cmdline"
+    fi
+    if [[ ! $cmdline =~ quiet ]];then
+        cmdline="$cmdline quiet"
+    fi
+    #======================================
+    # check for boot TIMEOUT
+    #--------------------------------------
+    if [ ! -z "$kiwi_boot_timeout" ];then
+        timeout=$kiwi_boot_timeout
+    fi
+    #======================================
+    # write etc/default/grub
+    #--------------------------------------
+    mkdir -p $destsPrefix/etc/default
+cat > $inst_default_grub << EOF
+GRUB_DISTRIBUTOR=$(printf %q "$title")
+GRUB_DEFAULT=0
+GRUB_HIDDEN_TIMEOUT=0
+GRUB_HIDDEN_TIMEOUT_QUIET=true
+GRUB_TIMEOUT=$timeout
+GRUB_CMDLINE_LINUX_DEFAULT="$cmdline"
+GRUB_TERMINAL=console
+EOF
+    #======================================
+    # enable rollback capability
+    #--------------------------------------
+    if [ "$FSTYPE" = "btrfs" ];then
+        echo "SUSE_BTRFS_SNAPSHOT_BOOTING=true" >> $inst_default_grub
+    fi
+    #======================================
+    # write etc/default/grub_installdevice
+    #--------------------------------------
+cat > $inst_default_grubdev << EOF
+$diskByID
+EOF
+    #======================================
+    # write boot/grub2/device.map
+    #--------------------------------------
+    mkdir -p $destsPrefix/boot/grub2
+cat > $inst_default_grubmap << EOF
+(hd0) $diskByID
+EOF
+    #======================================
+    # write sysconfig/bootloader
+    #--------------------------------------
+    mkdir -p $destsPrefix/etc/sysconfig
+cat > $inst_sysb << EOF
+LOADER_TYPE="$loader_type"
+DEFAULT_APPEND="$cmdline"
+FAILSAFE_APPEND="$failsafe $cmdline"
+EOF
 }
 #======================================
 # setupBootLoaderS390
@@ -2223,7 +2516,7 @@ function setupBootLoaderS390 {
         fi
         echo -n " $KIWI_INITRD_PARAMS"  >> $conf
         echo -n " $KIWI_KERNEL_OPTIONS" >> $conf
-        echo " quiet showopts\""        >> $conf
+        echo " showopts\""              >> $conf
         #======================================
         # create failsafe entry
         #--------------------------------------
@@ -2238,13 +2531,13 @@ function setupBootLoaderS390 {
         echo -n " $KIWI_INITRD_PARAMS"         >> $conf
         echo -n " $KIWI_KERNEL_OPTIONS"        >> $conf
         echo -n " x11failsafe"                 >> $conf
-        echo " quiet showopts\""               >> $conf
+        echo " showopts\""                     >> $conf
         count=$((count + 1))
     done
     #======================================
     # create recovery entry
     #--------------------------------------
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         systemException \
             "*** zipl: recovery chain loading not implemented ***" \
         "reboot"
@@ -2287,7 +2580,7 @@ function setupBootLoaderSyslinux {
     local initrd=""
     local title=""
     local fbmode=$vga
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         local gdevreco=$recoid
     fi
     if [ -z "$fbmode" ];then
@@ -2411,7 +2704,7 @@ function setupBootLoaderSyslinux {
                 fi
                 echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
                 echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
-                echo " quiet showopts"                         >> $conf
+                echo " showopts"                               >> $conf
             fi
             #======================================
             # create Failsafe entry
@@ -2441,7 +2734,7 @@ function setupBootLoaderSyslinux {
                 echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
                 echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
                 echo -n " $failsafe"                           >> $conf
-                echo " quiet showopts"                         >> $conf
+                echo " showopts"                               >> $conf
             fi
             count=$((count + 1))
         fi
@@ -2449,7 +2742,7 @@ function setupBootLoaderSyslinux {
     #======================================
     # create recovery entry
     #--------------------------------------
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         echo "label Recovery"                             >> $conf
         echo "kernel chain"                               >> $conf
         echo "append hd0 $gdevreco"                       >> $conf
@@ -2502,7 +2795,7 @@ function setupBootLoaderGrub {
     local title=""
     local rdisk=""
     local fbmode=$vga
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         local gdevreco=$((recoid - 1))
     fi
     if [ -z "$fbmode" ];then
@@ -2618,7 +2911,7 @@ function setupBootLoaderGrub {
                 fi
                 echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
                 echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
-                echo " quiet showopts"                            >> $menu
+                echo " showopts"                                  >> $menu
                 echo " module /boot/$initrd"                      >> $menu
             else
                 echo -n " kernel $gdev/boot/$kernel"              >> $menu
@@ -2637,7 +2930,7 @@ function setupBootLoaderGrub {
                 fi
                 echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
                 echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
-                echo " quiet showopts"                            >> $menu
+                echo " showopts"                                  >> $menu
                 echo " initrd $gdev/boot/$initrd"                 >> $menu
             fi
             #======================================
@@ -2662,7 +2955,7 @@ function setupBootLoaderGrub {
                 elif [ -e /dev/hvc0 ];then
                     echo -n " console=hvc console=tty"            >> $menu
                 fi
-                echo " quiet showopts"                            >> $menu
+                echo " showopts"                                  >> $menu
                 echo " module /boot/$initrd"                      >> $menu
             else
                 echo -n " kernel $gdev/boot/$kernel"              >> $menu
@@ -2679,7 +2972,7 @@ function setupBootLoaderGrub {
                 elif [ -e /dev/hvc0 ];then
                     echo -n " console=hvc console=tty"            >> $menu
                 fi
-                echo " quiet showopts"                            >> $menu
+                echo " showopts"                                  >> $menu
                 echo " initrd $gdev/boot/$initrd"                 >> $menu
             fi
             count=$((count + 1))
@@ -2688,7 +2981,7 @@ function setupBootLoaderGrub {
     #======================================
     # create recovery entry
     #--------------------------------------
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         echo "title Recovery"                             >> $menu
         echo " rootnoverify (hd0,$gdevreco)"              >> $menu
         echo " chainloader +1"                            >> $menu
@@ -2924,6 +3217,12 @@ EOF
         echo "GRUB_TIMEOUT=\"$kiwi_boot_timeout\"" >> $inst_default_grub
     fi
     #======================================
+    # enable rollback capability
+    #--------------------------------------
+    if [ "$FSTYPE" = "btrfs" ];then
+        echo "SUSE_BTRFS_SNAPSHOT_BOOTING=true" >> $inst_default_grub
+    fi
+    #======================================
     # create sysconfig/bootloader
     #--------------------------------------
     mkdir -p $destsPrefix/etc/sysconfig
@@ -3066,7 +3365,7 @@ function setupBootLoaderYaboot {
                 echo "image=/boot/$kernel"                    >> $conf
                 echo "label=\"$title\""                       >> $conf
                 echo "initrd=/boot/$initrd"                   >> $conf
-                echo -n "append=\"quiet sysrq=1 panic=9"      >> $conf
+                echo -n "append=\"sysrq=1 panic=9"            >> $conf
                 echo -n " root=$diskByID"                     >> $conf
                 if [ ! -z "$imageDiskDevice" ];then
                     echo -n " disk=$(getDiskID $imageDiskDevice)" >> $conf
@@ -3082,7 +3381,7 @@ function setupBootLoaderYaboot {
                 fi
                 echo -n " $KIWI_INITRD_PARAMS"                >> $conf
                 echo -n " $KIWI_KERNEL_OPTIONS"               >> $conf
-                echo " quiet showopts\""                      >> $conf
+                echo " showopts\""                            >> $conf
             fi
             #======================================
             # create failsafe entry
@@ -3096,7 +3395,7 @@ function setupBootLoaderYaboot {
                 echo "image=/boot/$kernel"                    >> $conf
                 echo "label=\"$title\""                       >> $conf
                 echo "initrd=/boot/$initrd"                   >> $conf
-                echo -n "append=\"quiet sysrq=1 panic=9"      >> $conf
+                echo -n "append=\"sysrq=1 panic=9"            >> $conf
                 echo -n " root=$diskByID"                     >> $conf
                 if [ ! -z "$imageDiskDevice" ];then
                     echo -n " disk=$(getDiskID $imageDiskDevice)" >> $conf
@@ -3113,7 +3412,7 @@ function setupBootLoaderYaboot {
                 echo -n " $KIWI_INITRD_PARAMS"                >> $conf
                 echo -n " $KIWI_KERNEL_OPTIONS"               >> $conf
                 echo -n " $failsafe"                          >> $conf
-                echo " quiet showopts\""                      >> $conf
+                echo " showopts\""                            >> $conf
             fi
             count=$((count + 1))
         fi
@@ -3121,7 +3420,7 @@ function setupBootLoaderYaboot {
     #======================================
     # create recovery entry
     #--------------------------------------
-    if [ ! -z "$OEM_RECOVERY" ];then
+    if [ ! -z "$kiwi_oemrecovery" ];then
         systemException \
             "*** lilo: recovery chain loading not implemented ***" \
         "reboot"
@@ -3199,10 +3498,11 @@ function updateRootDeviceFstab {
     # add one line to the fstab file for the root device
     # ----
     local IFS=$IFS_ORIG
-    local prefix=$1
+    local prefix=/mnt
+    local config_tmp=$1
     local rdev=$2
-    local nfstab=$prefix/etc/fstab
-    local diskByID=`getDiskID $rdev`
+    local nfstab=$config_tmp/etc/fstab
+    local diskByID=$(getDiskID $rdev)
     local opts=defaults
     #======================================
     # check for custom options
@@ -3214,8 +3514,8 @@ function updateRootDeviceFstab {
     # check for NFSROOT
     #--------------------------------------
     if [ ! -z "$NFSROOT" ];then
-        local server=`echo $rdev | cut -f3 -d" "`
-        local option=`echo $rdev | cut -f2 -d" "`
+        local server=$(echo $rdev | cut -f3 -d" ")
+        local option=$(echo $rdev | cut -f2 -d" ")
         echo "$server / nfs $option 0 0" >> $nfstab
         return
     fi
@@ -3240,13 +3540,12 @@ function updateRootDeviceFstab {
         for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
             variable=$(echo $i|cut -f1 -d=)
             volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-            content=$(eval echo \$$variable)
+            content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
             volpath=$(echo $content | cut -f3 -d:)
             if [ -z "$volpath" ];then
-                volpath=$volume
+                volpath=$(echo $volume | tr _ /)
             fi
-            volpath=$(echo $volpath | cut -f4 -d/ | cut -c3-)
-            mpoint=$(echo $volpath | tr -d LV | tr _ /)
+            mpoint=$(echo $volpath | sed -e s@^LV@@)
             mppath="/dev/$kiwi_lvmgroup/$volume"
             if \
                 [ ! $volume = "LVRoot" ] && \
@@ -3255,6 +3554,11 @@ function updateRootDeviceFstab {
             then
                 echo "$mppath /$mpoint $FSTYPE $opts 1 2" >> $nfstab
             fi
+        done
+    elif [ "$FSTYPE" = "btrfs" ];then
+        local fsuuid=$(blkid $rdev -s UUID -o value)
+        for subvol in $(btrfs subvol list $prefix |grep -v @ |cut -f9 -d' ');do
+            echo "UUID=$fsuuid /$subvol btrfs subvol=@/$subvol 0 0" >> $nfstab
         done
     fi
 }
@@ -3280,14 +3584,15 @@ function updateBootDeviceFstab {
     # add temporary bind mounted boot entry to fstab
     # ----
     local IFS=$IFS_ORIG
-    local prefix=$1
+    local config_tmp=$1
     local sdev=$2
-    local nfstab=$prefix/etc/fstab
+    local nfstab=$config_tmp/etc/fstab
     local mount=boot_bind
+    local prefix=/mnt
     #======================================
     # Store boot entry
     #--------------------------------------
-    if [ -e /mnt/$mount ];then
+    if [ -e $prefix/$mount ];then
         local diskByID=$(getDiskID $sdev)
         if [ ! -z "$FSTYPE" ];then
             FSTYPE_SAVE=$FSTYPE
@@ -3313,6 +3618,10 @@ function updateBootDeviceFstab {
             jdev=$(getDiskID $jdev)
             echo "$jdev /boot/efi $fstype defaults 0 0" >> $nfstab
         fi
+        if [ ! -z "$fstype" ] && [ "$label" = "ZIPL" ];then
+            jdev=$(getDiskID $jdev)
+            echo "$jdev /boot/zipl $fstype defaults 0 0" >> $nfstab
+        fi
     fi
 }
 #======================================
@@ -3326,7 +3635,7 @@ function updateOtherDeviceFstab {
     # ----
     local IFS=$IFS_ORIG
     local prefix=$1
-    local sysroot=$2
+    local prefix=$2
     local nfstab=$prefix/etc/fstab
     local index=0
     local field=0
@@ -3334,8 +3643,8 @@ function updateOtherDeviceFstab {
     local device
     local diskByID
     local IFS=","
-    if [ -z "$sysroot" ];then
-        sysroot=/mnt
+    if [ -z "$prefix" ];then
+        prefix=/mnt
     fi
     for i in $PART;do
         field=0
@@ -3360,8 +3669,8 @@ function updateOtherDeviceFstab {
             fi
             probeFileSystem $device
             if [ ! "$FSTYPE" = "luks" ] && [ ! "$FSTYPE" = "unknown" ];then
-                if [ ! -d $sysroot/$partMount ];then
-                    mkdir -p $sysroot/$partMount
+                if [ ! -d $prefix/$partMount ];then
+                    mkdir -p $prefix/$partMount
                 fi
                 diskByID=$(getDiskID $device)
                 echo "$diskByID $partMount $FSTYPE defaults 0 0" >> $nfstab
@@ -3380,14 +3689,14 @@ function setupKernelModules {
     # ----
     local IFS=$IFS_ORIG
     local destprefix=$1
-    local srcprefix=$2
-    if [ -z "$srcprefix" ];then
-        srcprefix=/mnt
+    local prefix=$2
+    if [ -z "$prefix" ];then
+        prefix=/mnt
     fi
-    local sysimg_ktempl=$srcprefix/var/adm/fillup-templates/sysconfig.kernel
-    local sysimg_syskernel=$srcprefix/etc/sysconfig/kernel
+    local sysimg_ktempl=$prefix/var/adm/fillup-templates/sysconfig.kernel
+    local sysimg_syskernel=$prefix/etc/sysconfig/kernel
     local syskernel=$destprefix/etc/sysconfig/kernel
-    local newstyle_mkinitrd=$srcprefix/lib/mkinitrd/scripts/boot-usb.sh
+    local newstyle_mkinitrd=$prefix/lib/mkinitrd/scripts/boot-usb.sh
     local key
     local val
     mkdir -p $destprefix/etc/sysconfig
@@ -3824,6 +4133,7 @@ function USBStickDevice {
     local IFS=$IFS_ORIG
     stickFound=0
     local mode=$1
+    local prefix=/mnt
     #======================================
     # search for USB removable devices
     #--------------------------------------
@@ -3837,8 +4147,8 @@ function USBStickDevice {
                 continue
             fi
             isremovable=$description/removable
-            storageID=`echo $description | cut -f1 -d: | xargs basename`
-            devicebID=`basename $description | cut -f2 -d:`
+            storageID=$(echo $description | cut -f1 -d: | xargs basename)
+            devicebID=$(basename $description | cut -f2 -d:)
             if [ $devicebID = "block" ];then
                 devicebID=`ls -1 $description`
                 isremovable=$description/$devicebID/removable
@@ -3871,7 +4181,7 @@ function USBStickDevice {
                 stickDevice=$(ddn $device 1)
                 for devnr in 1 2;do
                     dev=$(ddn $stickRoot $devnr)
-                    if ! kiwiMount "$dev" "/mnt" "-o ro";then
+                    if ! kiwiMount "$dev" "$prefix" "-o ro";then
                         continue
                     fi
                     if [ "$mode" = "install" ];then
@@ -3880,8 +4190,8 @@ function USBStickDevice {
                         # created with kiwi
                         # ----
                         if \
-                            [ ! -e /mnt/config.isoclient ] && \
-                            [ ! -e /mnt/config.usbclient ]
+                            [ ! -e $prefix/config.isoclient ] && \
+                            [ ! -e $prefix/config.usbclient ]
                         then
                             umountSystem
                             continue
@@ -3892,8 +4202,8 @@ function USBStickDevice {
                         # with kernel/initrd for later kexec
                         # ----
                         if \
-                            [ ! -e /mnt/linux.kexec ] && \
-                            [ ! -e /mnt/initrd.kexec ]
+                            [ ! -e $prefix/linux.kexec ] && \
+                            [ ! -e $prefix/initrd.kexec ]
                         then
                             umountSystem
                             continue
@@ -3903,7 +4213,7 @@ function USBStickDevice {
                         # USB stick search for Linux system tree
                         # created with kiwi
                         # ----
-                        if [ ! -e /mnt/etc/ImageVersion ]; then
+                        if [ ! -e $prefix/etc/ImageVersion ]; then
                             umountSystem
                             continue
                         fi
@@ -3954,10 +4264,10 @@ function searchImageISODevice {
     local count=0
     local isoinfo=/usr/bin/isoinfo
     mkdir -p /cdrom
-    if [ ! -e $isoinfo ];then
-        isoinfo=/usr/lib/genisoimage/isoinfo
+    if [ ! -x $isoinfo ]; then
+       isoinfo=/usr/lib/genisoimage/isoinfo
     fi
-    if [ ! -e $isoinfo ];then
+    if [ ! -x $isoinfo ];then
         systemException \
             "Can't find isoinfo tool in initrd" \
         "reboot"
@@ -3988,7 +4298,7 @@ function searchImageISODevice {
                 "Failed to mount ISO storage device !" \
             "reboot"
         fi
-        biosBootDevice=$(losetup -f --show /isofrom/$isofrom_system)
+        biosBootDevice=$(loop_setup /isofrom/$isofrom_system)
         if [ ! $? = 0 ];then
             systemException \
                 "Failed to loop setup ISO system !" \
@@ -4024,7 +4334,7 @@ function searchImageISODevice {
                             grep "Application id:"|cut -f2 -d:
                         )
                         mbrVID=$(echo $mbrVID)
-                        if [ "$mbrVID” = “$mbrVID" ];then
+                        if [ "$mbrVID" = "$mbrIID" ];then
                             biosBootDevice=$pdev
                             echo; return 0
                         fi
@@ -4248,6 +4558,27 @@ function searchBusIDBootDevice {
     fi
     export biosBootDevice=$(getDiskDevice $biosBootDevice)
     return 0
+}
+#======================================
+# setupBootDeviceIfMultipath
+#--------------------------------------
+function setupBootDeviceIfMultipath {
+    local IFS=$IFS_ORIG
+    local disk
+    local found_multipath_device=0
+    if startMultipathd; then
+        for wwn in $(multipath -l -v1 $biosBootDevice);do
+            disk=/dev/mapper/$wwn
+            if [ -e $disk ];then
+                biosBootDevice=$disk
+                found_multipath_device=1
+                break
+            fi
+        done
+        if [ ! $found_multipath_device = 1 ];then
+            stopMultipathd
+        fi
+    fi
 }
 #======================================
 # lookupDiskDevices
@@ -4549,7 +4880,7 @@ function searchSwapSpace {
     diskdevs=`echo $diskdevs | sed -e "s@(.*)@@"`
     for diskdev in $diskdevs;do
         for disknr in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15;do
-            id=`partitionID $diskdev $disknr`
+            id=$(partitionID $diskdev $disknr)
             if [ "$id" = "82" ];then
                 echo $diskdev$disknr
                 return
@@ -4674,6 +5005,10 @@ function loadNetworkCardS390 {
     local host=$1
     local skip="/etc/deactivate_s390_network_config_from_dasd"
     local hostdev=/dev/disk/by-path/ccw-${host}
+    local parmfile_name=PARM-S11
+    if [ ! -z "$kiwi_oemvmcp_parmfile" ];then
+        parmfile_name=$kiwi_oemvmcp_parmfile
+    fi
     Echo "Trying parm file lookup on DASD id: ${host}"
     #======================================
     # check if we got stopped
@@ -4691,14 +5026,13 @@ function loadNetworkCardS390 {
         return 1
     fi
     #======================================
-    # check for required modules
+    # check for required kernel support
     #--------------------------------------
-    if ! lsmod | grep -q vmcp;then
-        if ! modprobe vmcp;then
-            Echo "Failed to load required module vmcp"
-            return 1
-        fi
-    fi
+    # If loading vmcp fails we assume the support for it has been
+    # compiled into the kernel. If this is not the case we will run
+    # into an exception on 'vmcp query' which is the intended way
+    # to handle the error condition
+    modprobe vmcp &>/dev/null
     #======================================
     # bring host online
     #--------------------------------------
@@ -4713,8 +5047,8 @@ function loadNetworkCardS390 {
     #======================================
     # load parm file using cmsfscat
     #--------------------------------------
-    Echo "Loading configuration file <UID>.PARM-S11 from ${host}..."
-    local parmfile="$(vmcp query userid | cut -d ' ' -f 1).PARM-S11"
+    Echo "Loading configuration file <UID>.${parmfile_name} from ${host}..."
+    local parmfile="$(vmcp query userid | cut -d ' ' -f 1).$parmfile_name"
     if ! cmsfscat -d $hostdev -a "$parmfile" > /tmp/"$parmfile";then
         Echo "Can't create /tmp/${parmfile} on DASD id: ${host}"
         return 1
@@ -4979,7 +5313,7 @@ function setupNetworkDHCLIENT {
     # assign DHCP IP address by using the dhclient tool
     # ----
     local IFS=$IFS_ORIG
-    local dhclient_opts=" -4 -1 -q -timeout 20"
+    local dhclient_opts=" -4 -1 -q"
     mkdir -p /var/lib/dhclient
     mkdir -p /var/run
     for try_iface in ${dev_list[*]}; do
@@ -5319,7 +5653,13 @@ function setupNetworkStatic {
         #======================================
         # activate network
         #--------------------------------------
-        local iface=$(cat /proc/net/dev|tail -n1|cut -d':' -f1|sed 's/ //g')
+        # Please note: It is assumed the last interface in the list is the
+        # one which should receive the interface config. While the loopback
+        # interface is skipped this could still result in an unexpected
+        # behavior.
+        local iface=$(
+            cat /proc/net/dev|grep -v lo:|tail -n1|cut -d':' -f1|sed 's/ //g'
+        )
         if ! setupNic $iface $hostip $netmask;then
             if [ -e "$root" ];then
                 Echo "Failed to set up the network: $iface"
@@ -5482,6 +5822,7 @@ function updateNeeded {
     local imageServer
     local imageBlkSize
     local imageZipped
+    local prefix=/mnt
     #======================================
     # Global variables
     #--------------------------------------
@@ -5503,7 +5844,7 @@ function updateNeeded {
         esac
         done
         atversion="$imageName-$imageVersion"
-        versionFile="/mnt/etc/ImageVersion-$atversion"
+        versionFile="$prefix/etc/ImageVersion-$atversion"
         IFS=" "
         if [ -f "$versionFile" ];then
             read installed sum2 < $versionFile
@@ -5608,8 +5949,10 @@ function fdasdGetPartitionID {
 function partedGetPartitionID {
     # /.../
     # prints the partition ID for the given device and number
-    # map ID's if GPT table according to kiwi set partition
-    # names
+    # In case of a GPT map to the GUID code from the sgdisk
+    # utility. If sgdisk is not available map to the kiwi
+    # fdisk compatible hex id's which uses ee for any kind
+    # of unknown GPT partition entry
     # ----
     local IFS=$IFS_ORIG
     local parted=$(parted -m -s $1 print | grep -v Warning:)
@@ -5628,19 +5971,22 @@ function partedGetPartitionID {
             sed -e 's@[,; ]@@g' | tr -d 0
     else
         local name=$(parted -m -s $1 print | grep ^$2: | cut -f6 -d:)
-        if [ $name = "lxroot" ];then
+        if lookup sgdisk &>/dev/null;then
+            # map to short gdisk code
+            echo $(sgdisk -p $1 | grep -E "^   $2") | cut -f6 -d ' '
+        elif [ "$name" = "lxroot" ];then
             # map lxroot to MBR type 83 (linux)
             echo 83
-        elif [ $name = "lxswap" ];then
+        elif [ "$name" = "lxswap" ];then
             # map lxswap to MBR type 82 (linux swap)
             echo 82
-        elif [ $name = "lxlvm" ];then
+        elif [ "$name" = "lxlvm" ];then
             # map lxlvm to MBR type 8e (linux LVM)
             echo 8e
-        elif [ $name = "UEFI" ];then
+        elif [ "$name" = "UEFI" ];then
             # map UEFI to MBR type 6 (fat 16)
             echo 6
-        elif [ $name = "legacy" ];then
+        elif [ "$name" = "legacy" ];then
             # map bios grub legacy partition to MBR type ef (EFI)
             echo ef
         else
@@ -5724,7 +6070,7 @@ function kernelList {
         fi
         unset kernel
         unset initrd
-        kname=`basename $i`
+        kname=$(basename "$i")
         if [ "$kname" = $krunning ];then
             continue
         fi
@@ -5980,6 +6326,7 @@ function kiwiMount {
     # load not autoloadable fs modules
     #--------------------------------------
     modprobe squashfs &>/dev/null
+    modprobe overlay &>/dev/null
     #======================================
     # store old FSTYPE value
     #--------------------------------------
@@ -5990,7 +6337,7 @@ function kiwiMount {
     # decide for a mount method
     #--------------------------------------
     if [ ! -z "$lop" ];then
-        src=$(losetup -f --show $lop)
+        src=$(loop_setup $lop)
         if [ ! -e $src ]; then
             return 1
         fi
@@ -6097,6 +6444,7 @@ function mountSystemSeedBtrFS {
     local loopf=$1
     local rwDevice=`echo $UNIONFS_CONFIG | cut -d , -f 1`
     local roDevice=`echo $UNIONFS_CONFIG | cut -d , -f 2`
+    local prefix=/mnt
     #======================================
     # check read/only device location
     #--------------------------------------
@@ -6116,7 +6464,7 @@ function mountSystemSeedBtrFS {
         #======================================
         # btrfs exported via NFS
         #--------------------------------------
-        if ! kiwiMount "$roDevice" "/mnt" "" $loopf;then
+        if ! kiwiMount "$roDevice" "$prefix" "" $loopf;then
             Echo "Failed to mount NFS filesystem"
             return 1
         fi
@@ -6127,7 +6475,7 @@ function mountSystemSeedBtrFS {
         if [ -z "$loopf" ];then
             loopf=$roDevice
         fi
-        if ! mount -o loop,$kiwi_fsmountoptions $loopf /mnt; then
+        if ! mount -o loop,$kiwi_fsmountoptions $loopf $prefix; then
             Echo "Failed to mount btrfs filesystem"
             return 1
         fi
@@ -6135,11 +6483,11 @@ function mountSystemSeedBtrFS {
     #======================================
     # add seed device
     #--------------------------------------
-    if ! btrfs device add $rwDevice /mnt; then
+    if ! btrfs device add $rwDevice $prefix; then
         Echo "Failed to attach btrfs seed device"
         return 1
     fi
-    if ! mount -o remount,rw /mnt; then
+    if ! mount -o remount,rw $prefix; then
         Echo "Failed to remount read-write"
         return 1
     fi
@@ -6156,10 +6504,12 @@ function mountSystemUnionFS {
     local rwDevice=`echo $UNIONFS_CONFIG | cut -d , -f 1`
     local roDevice=`echo $UNIONFS_CONFIG | cut -d , -f 2`
     local unionFST=`echo $UNIONFS_CONFIG | cut -d , -f 3`
+    local prefix=/mnt
     #======================================
     # load fuse module
     #--------------------------------------
     modprobe fuse &>/dev/null
+    modprobe overlay &>/dev/null
     #======================================
     # create overlay mount points
     #--------------------------------------
@@ -6215,7 +6565,7 @@ function mountSystemUnionFS {
         # setup overlayfs mount
         #--------------------------------------
         local opts="rw,lowerdir=$roDir,upperdir=$rwDir"
-        if ! mount -t overlayfs -o $opts overlayfs /mnt;then
+        if ! mount -t overlayfs -o $opts overlayfs $prefix;then
             # overlayfs in version >= v22 behaves differently
             # + renamed from overlayfs to overlay
             # + requires a workdir to become mounted
@@ -6224,7 +6574,7 @@ function mountSystemUnionFS {
             mkdir -p $rwDir/work
             mkdir -p $rwDir/rw
             opts="rw,lowerdir=$roDir,upperdir=$rwDir/rw,workdir=$rwDir/work"
-            if ! mount -t overlay -o $opts overlay /mnt;then
+            if ! mount -t overlay -o $opts overlay $prefix;then
                 Echo "Failed to mount root via overlayfs"
                 return 1
             fi
@@ -6234,7 +6584,7 @@ function mountSystemUnionFS {
         # setup fuse union mount
         #--------------------------------------
         local opts="cow,max_files=65000,allow_other,use_ino,suid,dev,nonempty"
-        if ! unionfs -o $opts $rwDir=RW:$roDir=RO /mnt;then
+        if ! unionfs -o $opts $rwDir=RW:$roDir=RO $prefix;then
             Echo "Failed to mount root via unionfs"
             return 1
         fi
@@ -6259,6 +6609,7 @@ function mountSystemClicFS {
     local haveMByte
     local wantCowFS
     local size
+    local prefix=/mnt
     #======================================
     # load fuse module
     #--------------------------------------
@@ -6362,7 +6713,7 @@ function mountSystemClicFS {
     #======================================
     # mount root over clic
     #--------------------------------------
-    size=`stat -c %s $roDir/fsdata.ext4`
+    size=$(stat -c %s $roDir/fsdata.ext4)
     size=$((size/512))
     # we don't want reserved blocks...
     tune2fs -m 0 $roDir/fsdata.ext4 >/dev/null
@@ -6375,11 +6726,17 @@ function mountSystemClicFS {
         resize2fs $roDir/fsdata.ext4 $size"s"
     fi
     mount -o loop,noatime,nodiratime,errors=remount-ro,barrier=0 \
-        $roDir/fsdata.ext4 /mnt
+        $roDir/fsdata.ext4 $prefix
     if [ ! $? = 0 ];then
-        Echo "Failed to mount ext3 clic container"
+        Echo "Failed to mount ext4 clic container"
         return 1
     fi
+    # Give fuse enough time to settle for I/O in the ext4 container
+    # Unconditional waiting is never a good idea however I couldn't
+    # find a good solution to this problem because a lookup on read
+    # or write could cause an ro remount of the ext4 container
+    # Thus we just sleep a while before proceeding
+    sleep 5
     export haveClicFS=yes
     return 0
 }
@@ -6400,6 +6757,7 @@ function mountSystemCombined {
     local haveKByte
     local haveMByte
     local needMByte
+    local prefix=/mnt
     if [ -e "$HYBRID_RW" ];then
         rwDevice=$HYBRID_RW
     elif [ "$haveLuks" = "yes" ]; then
@@ -6419,7 +6777,7 @@ function mountSystemCombined {
         return 1
     fi
     # /.../
-    # mount a tmpfs as /mnt which will become the root fs (/) later on
+    # mount a tmpfs which will become the root fs (/) later on
     # and extract the rootfs tarball with the RAM data and the read-only
     # and read-write links into the tmpfs.
     # ----
@@ -6458,36 +6816,36 @@ function mountSystemCombined {
     # mount tmpfs, reserve max $splitroot_size for the rootfs data
     # ----
     options="size=${splitroot_size}M,nr_inodes=$inode_nr"
-    if ! mount -t tmpfs tmpfs -o $options /mnt;then
+    if ! mount -t tmpfs tmpfs -o $options $prefix;then
         systemException \
             "Failed to mount root tmpfs" \
         "reboot"
     fi
-    cd /mnt && tar xf $rootfs >/dev/null && cd /
+    cd $prefix && tar xf $rootfs >/dev/null && cd /
     # /.../
     # check for a read-write data file and put it on the read-write
     # device or to the root tmpfs
     # ---
     if [ -e ${loopf}-read-write ];then
-        local target=/mnt
+        local target=$prefix
         if [ -e "$HYBRID_RW" ];then
-            mkdir -p /mnt/read-write
-            kiwiMount "$rwDevice" "/mnt/read-write"
-            target=/mnt/read-write
+            mkdir -p $prefix/read-write
+            kiwiMount "$rwDevice" "$prefix/read-write"
+            target=$prefix/read-write
         fi
-        mkdir -p /mnt-tmp
-        if ! mount -o loop ${loopf}-read-write /mnt-tmp;then
+        mkdir -p $prefix-tmp
+        if ! mount -o loop ${loopf}-read-write $prefix-tmp;then
             systemException \
                 "Failed to mount read-write data file" \
             "reboot"
         fi
-        pushd /mnt-tmp &>/dev/null
+        pushd $prefix-tmp &>/dev/null
         for item in *;do
             if [ -L /$target/$item ];then
                 rm -f /$target/$item
             fi
             if [ ! -e /$target/$item ];then
-                if ! cp -a /mnt-tmp/$item $target;then
+                if ! cp -a $prefix-tmp/$item $target;then
                     systemException \
                         "Failed to copy $item to $target" \
                     "reboot"
@@ -6496,31 +6854,29 @@ function mountSystemCombined {
         done
         popd &>/dev/null
         if [ -e "$HYBRID_RW" ];then
-            umount /mnt/read-write
+            umount $prefix/read-write
         fi
-        umount /mnt-tmp
-        rmdir /mnt-tmp
+        umount $prefix-tmp
+        rmdir $prefix-tmp
     fi
     # /.../
-    # create a /mnt/read-only mount point and move the /read-only
-    # mount into the /mnt root tree. After that remove the /read-only
-    # directory and create a link to /mnt/read-only instead
-    # /read-only -> /mnt/read-only
+    # create a read-only mount point and move the /read-only
+    # mount into the root tree. After that remove the read-only
+    # directory and create a link to read-only instead
     # ----
-    mkdir /mnt/read-only >/dev/null
-    mount --move /read-only /mnt/read-only >/dev/null
+    mkdir $prefix/read-only >/dev/null
+    mount --move /read-only $prefix/read-only >/dev/null
     rm -rf /read-only >/dev/null
-    ln -s /mnt/read-only /read-only >/dev/null || return 1
+    ln -s $prefix/read-only /read-only >/dev/null || return 1
     if ! echo $rwDevice | grep -q loop;then
         if partitionSize $rwDevice &>/dev/null;then
             # /.../
-            # mount the read-write partition to /mnt/read-write and create
-            # a link to it: /read-write -> /mnt/read-write 
+            # mount the read-write partition to read-write and create a link
             # ----
-            mkdir -p /mnt/read-write >/dev/null
-            kiwiMount "$rwDevice" "/mnt/read-write"
+            mkdir -p $prefix/read-write >/dev/null
+            kiwiMount "$rwDevice" "$prefix/read-write"
             rm -rf /read-write >/dev/null
-            ln -s /mnt/read-write /read-write >/dev/null
+            ln -s $prefix/read-write /read-write >/dev/null
         fi
     fi
 }
@@ -6536,32 +6892,32 @@ function mountSystemStandard {
     local volpath
     local mpoint
     local mppath
+    local prefix=/mnt
     if [ ! -z $FSTYPE ]          && 
          [ ! $FSTYPE = "unknown" ] && 
          [ ! $FSTYPE = "auto" ]
     then
-        kiwiMount "$mountDevice" "/mnt"
+        kiwiMount "$mountDevice" "$prefix"
     else
-        mount $mountDevice /mnt >/dev/null
+        mount $mountDevice $prefix >/dev/null
     fi
     if [ "$haveLVM" = "yes" ];then
         for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
             variable=$(echo $i|cut -f1 -d=)
             volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-            content=$(eval echo \$$variable)
+            content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
             volpath=$(echo $content | cut -f3 -d:)
             if [ -z "$volpath" ];then
-                volpath=$volume
+                volpath=$(echo $volume | tr _ /)
             fi
-            volpath=$(echo $volpath | cut -f4 -d/ | cut -c3-)
-            mpoint=$(echo $volpath | tr -d LV | tr _ /)
+            mpoint=$(echo $volpath | sed -e s@^LV@@)
             if \
                 [ ! $volume = "LVRoot" ] && \
                 [ ! $volume = "LVComp" ] && \
                 [ ! $volume = "LVSwap" ]
             then
-                mkdir -p /mnt/$mpoint
-                kiwiMount "/dev/$kiwi_lvmgroup/$volume" "/mnt/$mpoint"
+                mkdir -p $prefix/$mpoint
+                kiwiMount "/dev/$kiwi_lvmgroup/$volume" "$prefix/$mpoint"
             fi
         done
     fi
@@ -6633,6 +6989,28 @@ function mountSystem {
     #--------------------------------------
     resetMountCounter
     return $retval
+}
+#======================================
+# mountOrCopyLiveCD
+#--------------------------------------
+function mountOrCopyLiveCD {
+    local SIZE
+    if [ ! -z "$TORAM" ]; then
+        Echo "Copying CD system into tmpfs"
+        mkdir -p ${LIVECD}R $LIVECD && \
+            eval mount $cdopt $biosBootDevice ${LIVECD}R
+        SIZE="$(du -s /${LIVECD}R | gawk '{print int($1*1.1)}')"
+        mount -t tmpfs -o size=${SIZE}k tmpfs $LIVECD
+        if ! cp -ar ${LIVECD}R/* $LIVECD; then
+            systemException \
+                "Copying CD contents to tmpfs failed" \
+            "reboot"
+        fi
+        umount ${LIVECD}R
+        rmdir ${LIVECD}R
+    else
+        mkdir -p $LIVECD && eval mount $cdopt $biosBootDevice $LIVECD
+    fi
 }
 #======================================
 # cleanDirectory
@@ -7395,16 +7773,17 @@ function importBranding {
     # to the system to allow to use them persistently
     # ----
     local IFS=$IFS_ORIG
+    local prefix=/mnt
     if [ -f /image/loader/message ];then
-        if ! canWrite /mnt/boot;then
+        if ! canWrite $prefix/boot;then
             Echo "Can't write to boot, import of boot message skipped"
         else
-            mv /image/loader/message /mnt/boot
+            mv /image/loader/message $prefix/boot
         fi
     fi
     if [ -f /image/loader/branding/logo.mng ];then
-    if [ -d /mnt/etc/bootsplash/themes ];then
-        for theme in /mnt/etc/bootsplash/themes/*;do
+    if [ -d $prefix/etc/bootsplash/themes ];then
+        for theme in $prefix/etc/bootsplash/themes/*;do
             if [ -d $theme/images ];then
                 if ! canWrite $theme;then
                     Echo "Can't write to $theme, import of boot theme skipped"
@@ -7430,7 +7809,8 @@ function validateRootTree {
     # some sanity checks are made here
     # ----
     local IFS=$IFS_ORIG
-    if [ ! -x /mnt/sbin/init -a ! -L /mnt/sbin/init ];then
+    local prefix=/mnt
+    if [ ! -x $prefix/sbin/init -a ! -L $prefix/sbin/init ];then
         systemException "/sbin/init no such file or not executable" "reboot"
     fi
 }
@@ -7468,7 +7848,7 @@ function getDiskID {
                 continue
             fi
             local dev=$(readlink $i)
-            dev=/dev/$(basename $dev)
+            dev=/dev/$(basename "$dev")
             if [ $dev = $device ];then
                 echo $i
                 return
@@ -7486,7 +7866,7 @@ function getDiskID {
             continue
         fi
         local dev=$(readlink $i)
-        dev=/dev/$(basename $dev)
+        dev=/dev/$(basename "$dev")
         if [ $dev = $device ];then
             echo $i
             return
@@ -7553,17 +7933,18 @@ function setupConfigFiles {
     local IFS=$IFS_ORIG
     local file
     local dir
+    local prefix=/mnt
     cd /config
     find . -type f | while read file;do
         dir=$(dirname $file)
-        if [ ! -d /mnt/$dir ];then
-            mkdir -p /mnt/$dir
+        if [ ! -d $prefix/$dir ];then
+            mkdir -p $prefix/$dir
         fi
-        if ! canWrite /mnt/$dir;then
+        if ! canWrite $prefix/$dir;then
             Echo "Can't write to $dir, read-only filesystem... skipped"
             continue
         fi
-        cp $file /mnt/$file
+        cp $file $prefix/$file
     done
     cd /
     rm -rf /config
@@ -7579,6 +7960,7 @@ function activateImage {
     # new tree to be the new root (/) 
     # ----
     local IFS=$IFS_ORIG
+    local prefix=/mnt
     #======================================
     # setup image name
     #--------------------------------------
@@ -7604,13 +7986,13 @@ function activateImage {
     local xiDir=xino
     if [ -z "$NFSROOT" ];then
         if [ -d $roDir ];then
-            mkdir -p /mnt/$roDir && mount --move /$roDir /mnt/$roDir
+            mkdir -p $prefix/$roDir && mount --move /$roDir $prefix/$roDir
         fi
         if [ -d $rwDir ];then
-            mkdir -p /mnt/$rwDir && mount --move /$rwDir /mnt/$rwDir
+            mkdir -p $prefix/$rwDir && mount --move /$rwDir $prefix/$rwDir
         fi
         if [ -d $xiDir ];then
-            mkdir -p /mnt/$xiDir && mount --move /$xiDir /mnt/$xiDir
+            mkdir -p $prefix/$xiDir && mount --move /$xiDir $prefix/$xiDir
         fi
     fi
     #======================================
@@ -7618,62 +8000,64 @@ function activateImage {
     #--------------------------------------
     local cdDir=/livecd
     if [ -d $cdDir ];then
-        mkdir -p /mnt/$cdDir && mount --move /$cdDir /mnt/$cdDir
+        mkdir -p $prefix/$cdDir && mount --move /$cdDir $prefix/$cdDir
         if [ -d /cow ];then
-            mkdir -p /mnt/cow && mount --move /cow /mnt/cow
+            mkdir -p $prefix/cow && mount --move /cow $prefix/cow
         fi
         if [ -d /isofrom ];then
-            mkdir -p /mnt/isofrom && mount --move /isofrom /mnt/isofrom
+            mkdir -p $prefix/isofrom && mount --move /isofrom $prefix/isofrom
         fi
     fi
     #======================================
     # create dbus machine id
     #--------------------------------------
     if lookup dbus-uuidgen &>/dev/null;then
-        dbus-uuidgen > /mnt/var/lib/dbus/machine-id
+        dbus-uuidgen > $prefix/var/lib/dbus/machine-id
     fi
     #======================================
     # move device nodes
     #--------------------------------------
     Echo "Activating Image: [$name]"
     udevPending
-    mkdir -p /mnt/run
-    mkdir -p /mnt/dev
-    mkdir -p /mnt/var/run
-    mount --move /dev /mnt/dev
+    mkdir -p $prefix/run
+    mkdir -p $prefix/dev
+    mkdir -p $prefix/var/run
+    mount --move /dev $prefix/dev
     if [[ ! $kiwi_iname =~ SLE.11 ]];then
-        mount --move /run /mnt/run
-        mount --move /var/run /mnt/var/run
+        mount --move /run $prefix/run
+        if [ ! -L $prefix/var/run ];then
+            mount --move /var/run $prefix/var/run
+        fi
     fi
     udevKill
     #======================================
     # run preinit stage
     #--------------------------------------
     Echo "Preparing preinit phase..."
-    if ! cp /usr/bin/utimer /mnt;then
+    if ! cp /usr/bin/utimer $prefix;then
         systemException "Failed to copy: utimer" "reboot"
     fi
-    if ! cp /iprocs /mnt;then
+    if ! cp /iprocs $prefix;then
         systemException "Failed to copy: iprocs" "reboot"
     fi
-    if ! cp /preinit /mnt;then
+    if ! cp /preinit $prefix;then
         systemException "Failed to copy: preinit" "reboot"
     fi
-    if ! cp /include /mnt;then
+    if ! cp /include $prefix;then
         systemException "Failed to copy: include" "reboot"
     fi
     local killall5=$(lookup killall5)
-    if [ ! -e /mnt/$killall5 ]; then
-        touch /mnt/killall5.from-initrd
+    if [ ! -e $prefix/$killall5 ]; then
+        touch $prefix/killall5.from-initrd
     fi
-    if ! cp -f -a $killall5 /mnt/$killall5;then
+    if ! cp -f -a $killall5 $prefix/$killall5;then
         systemException "Failed to copy: killall5" "reboot"
     fi
     local pidof=$(lookup pidof)
-    if [ ! -e /mnt/$pidof ];then
-        touch /mnt/pidof.from-initrd
+    if [ ! -e $prefix/$pidof ];then
+        touch $prefix/pidof.from-initrd
     fi
-    if ! cp -f -a $pidof /mnt/$pidof;then
+    if ! cp -f -a $pidof $prefix/$pidof;then
         systemException "Failed to copy: pidof" "reboot"
     fi
 }
@@ -7747,13 +8131,12 @@ function cleanImage {
     for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
         variable=$(echo $i|cut -f1 -d=)
         volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-        content=$(eval echo \$$variable)
+        content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
         volpath=$(echo $content | cut -f3 -d:)
         if [ -z "$volpath" ];then
-            volpath=$volume
+            volpath=$(echo $volume | tr _ /)
         fi
-        volpath=$(echo $volpath | cut -f4 -d/ | cut -c3-)
-        mpoint=$(echo $volpath | tr -d LV | tr _ /)
+        mpoint=$(echo $volpath | sed -e s@^LV@@)
         if \
             [ ! $volume = "LVRoot" ] && \
             [ ! $volume = "LVComp" ] && \
@@ -7787,6 +8170,7 @@ function bootImage {
     local IFS=$IFS_ORIG
     local reboot=no
     local option=${kernel_cmdline[@]}
+    local prefix=/mnt
     #======================================
     # Set active console to default font
     #--------------------------------------
@@ -7795,7 +8179,7 @@ function bootImage {
     # check for init kernel option
     #--------------------------------------
     if [ -z "$init" ];then
-        if [ -e /mnt/bin/systemd ];then
+        if [ -e $prefix/bin/systemd ];then
             export init=/bin/systemd
         else
             export init=/sbin/init
@@ -7811,16 +8195,16 @@ function bootImage {
     #--------------------------------------
     if [ "$LOCAL_BOOT" = "no" ];then
         if [ -z "$KIWI_RECOVERY" ];then
-            if [ ! -z "$OEM_REBOOT" ] || [ ! -z "$REBOOT_IMAGE" ];then
+            if [ ! -z "$kiwi_oemreboot" ] || [ ! -z "$REBOOT_IMAGE" ];then
                 reboot=yes
             fi
-            if [ ! -z "$OEM_REBOOT_INTERACTIVE" ];then
+            if [ ! -z "$kiwi_oemrebootinteractive" ];then
                 rebootinter=yes
             fi
-            if [ ! -z "$OEM_SHUTDOWN" ];then
+            if [ ! -z "$kiwi_oemshutdown" ];then
                 shutdown=yes
             fi
-            if [ ! -z "$OEM_SHUTDOWN_INTERACTIVE" ];then
+            if [ ! -z "$kiwi_oemshutdowninteractive" ];then
                 shutdowninter=yes
             fi
         fi
@@ -7829,27 +8213,27 @@ function bootImage {
     # run resetBootBind
     #--------------------------------------
     if [ -z "$NETBOOT_ONLY" ];then
-        resetBootBind /mnt
+        resetBootBind $prefix
     fi
     #======================================
     # setup warpclock for local time setup
     #--------------------------------------
     local warpclock=/lib/mkinitrd/bin/warpclock
-    if [ -e /mnt/etc/localtime ] && [ -x $warpclock ];then
-        cp /mnt/etc/localtime /etc
-        if [ -e /mnt/etc/adjtime ];then
-            cp /mnt/etc/adjtime /etc
+    if [ -e $prefix/etc/localtime ] && [ -x $warpclock ];then
+        cp $prefix/etc/localtime /etc
+        if [ -e $prefix/etc/adjtime ];then
+            cp $prefix/etc/adjtime /etc
             while read line;do
                 if test "$line" = LOCAL
             then
-                $warpclock > /mnt/dev/shm/warpclock
+                $warpclock > $prefix/dev/shm/warpclock
             fi
             done < /etc/adjtime
-        elif [ -e /mnt/etc/sysconfig/clock ];then
-            cp /mnt/etc/sysconfig/clock /etc
+        elif [ -e $prefix/etc/sysconfig/clock ];then
+            cp $prefix/etc/sysconfig/clock /etc
             . /etc/clock
             case "$HWCLOCK" in
-                *-l*) $warpclock > /mnt/dev/shm/warpclock
+                *-l*) $warpclock > $prefix/dev/shm/warpclock
             esac
         fi
     fi
@@ -7861,16 +8245,16 @@ function bootImage {
     #======================================
     # copy boot log file into system image
     #--------------------------------------
-    mkdir -p /mnt/var/log
-    rm -f /mnt/boot/mbrid
-    if [ -e /mnt/dev/shm/initrd.msg ];then
-        cp -f /mnt/dev/shm/initrd.msg /mnt/var/log/boot.msg
+    mkdir -p $prefix/var/log
+    rm -f $prefix/boot/mbrid
+    if [ -e $prefix/dev/shm/initrd.msg ];then
+        cp -f $prefix/dev/shm/initrd.msg $prefix/var/log/boot.msg
     fi
     if [ -e $ELOG_FILE ];then
-        cp -f $ELOG_FILE /mnt/$ELOG_FILE
+        cp -f $ELOG_FILE $prefix/$ELOG_FILE
     fi
-    if [ ! -d /mnt/var/log/ConsoleKit ];then
-        mkdir -p /mnt/var/log/ConsoleKit
+    if [ ! -d $prefix/var/log/ConsoleKit ];then
+        mkdir -p $prefix/var/log/ConsoleKit
     fi
     #======================================
     # umount proc
@@ -7880,20 +8264,20 @@ function bootImage {
     #======================================
     # copy initrd to /run/initramfs
     #--------------------------------------
-    mkdir -p /mnt/run/initramfs
+    mkdir -p $prefix/run/initramfs
     match='mnt|lost\+found|dev|boot|tmp|run|proc|sys|read-only|read-write'
     for dir in /*;do
         if [[ $dir =~ $match ]]; then
-            mkdir -p /mnt/run/initramfs/$dir
+            mkdir -p $prefix/run/initramfs/$dir
             continue
         fi
-        cp -a $dir /mnt/run/initramfs
+        cp -a $dir $prefix/run/initramfs
     done
     if [ "$FSTYPE" = "zfs" ];then
         #======================================
         # setup shutdown script
         #--------------------------------------
-        local halt=/mnt/run/initramfs/shutdown
+        local halt=$prefix/run/initramfs/shutdown
 cat > $halt << EOF
 #!/bin/sh
 # if systemd is used this script is called after all
@@ -7931,25 +8315,25 @@ EOF
     #======================================
     # run preinit and cleanImage
     #--------------------------------------
-    chroot /mnt /bin/bash -c \
+    chroot $prefix /bin/bash -c \
         "/preinit"
-    chroot /mnt /bin/bash -c \
+    chroot $prefix /bin/bash -c \
         ". /include ; exec 2>>$ELOG_FILE ; set -x ; cleanImage"
-    cd /mnt
+    cd $prefix
     #======================================
     # tell logging the new root fs
     #--------------------------------------
-    exec 2>>/mnt/$ELOG_FILE
+    exec 2>>$prefix/$ELOG_FILE
     set -x
     #======================================
     # tell plymouth the new root fs
     #--------------------------------------
     if lookup plymouthd &>/dev/null;then
-        plymouth update-root-fs --new-root-dir=/mnt
+        plymouth update-root-fs --new-root-dir=$prefix
         #======================================
         # stop if not installed in system image
         #--------------------------------------
-        if [ ! -e /mnt/usr/bin/plymouth ];then
+        if [ ! -e $prefix/usr/bin/plymouth ];then
             plymouth quit
         fi
     fi
@@ -8060,20 +8444,18 @@ function setupUnionFS {
 function canWrite {
     # /.../
     # check if we can write to the given location
-    # If no location is given the function test
-    # for write permissions in /mnt.
     # returns zero on success.
     # ---
     local IFS=$IFS_ORIG
-    local dest=$1
-    if [ -z "$dest" ];then
-        dest=/mnt
+    local prefix=$1
+    if [ -z "$prefix" ];then
+        prefix=/mnt
     fi
-    if [ ! -d $dest ];then
+    if [ ! -d $prefix ];then
         return 1
     fi
-    if touch $dest/can-write &>/dev/null;then
-        rm $dest/can-write
+    if touch $prefix/can-write &>/dev/null;then
+        rm $prefix/can-write
         return 0
     fi
     return 1
@@ -8231,7 +8613,7 @@ function luksOpen {
     # no map name set, build it from device
     #--------------------------------------
     if [ -z "$name" ];then
-        name=luks_$(basename $ldev)
+        name=luks_$(basename "$ldev")
     fi
     #======================================
     # luks map already exists, return
@@ -8316,7 +8698,7 @@ function luksClose {
     # close all luks* map names
     #--------------------------------------
     for i in /dev/mapper/luks*;do
-        name=$(basename $i)
+        name=$(basename "$i")
         cryptsetup luksClose $name
     done
 }
@@ -8674,7 +9056,7 @@ function createCustomHybridPersistent {
     #======================================
     # loop setup cow space
     #--------------------------------------
-    kiwi_cowdevice=$(losetup -f --show /cow/$kiwi_cowsystem)
+    kiwi_cowdevice=$(loop_setup /cow/$kiwi_cowsystem)
     if [ ! -e $kiwi_cowdevice ];then
         systemException \
             "Failed to loop setup cow file !" \
@@ -8709,13 +9091,26 @@ function createHybridPersistent {
     #======================================
     # check persistent write partition
     #--------------------------------------
+    local hybrid_fs=$HYBRID_PERSISTENT_FS
+    if [ ! -z "$kiwi_hybridpersistent_filesystem" ];then
+        hybrid_fs=$kiwi_hybridpersistent_filesystem
+    fi
     for pID in 4 3 2 1;do
         local partd=$(ddn $device $pID)
         local label=$(blkid $partd -s LABEL -o value)
         if [ "$label" = "hybrid" ];then
             Echo "Existing persistent hybrid partition found"
+            if [ $hybrid_fs = "fat" ];then
+                if ! setupHybridCowDevice;then
+                    Echo "Failed to setup hybrid cow device"
+                    Echo "Persistent writing deactivated"
+                    unset kiwi_hybridpersistent
+                    return
+                fi
+            else
+                export HYBRID_RW=$partd
+            fi
             export skipSetupBootPartition=1
-            export HYBRID_RW=$partd
             return
         fi
     done
@@ -8730,14 +9125,47 @@ function createHybridPersistent {
         unset kiwi_hybridpersistent
         return
     fi
-    pID=$(parted -m -s $device print | grep -E ^[1-9]+: | wc -l)
-    pID=$((pID + 1))
-    createPartitionerInput \
-        n p:lxrw $pID . . t $pID $HYBRID_PERSISTENT_ID
-    callPartitioner $input
+    # Find partition ID we could use to create a new write partition
+    for pID in 1 2 3 4;do
+        local partd=$(ddn $device $pID)
+        if [ ! -e "$partd" ];then
+            Echo "Creating write partition at ID: $pID"
+            break
+        fi
+    done
+    if [ "$kiwi_firmware" = "bios" ];then
+        # we support creation of partitions which are not in ascending order
+        # in bios mode. The partition table created via isohybrid starts at
+        # the second partition to allow the creation of the write partition
+        # as first partition. Reason for this is to support Windows systems
+        # with a fat partition as write space which has to be the first
+        # partition otherwise Windows can't cope with it.
+        #
+        # Such a write partition can be created using fdisk, however for
+        # EFI capable hybrid ISO images the GPT table is used which fdisk
+        # can't handle.
+        #
+        # Therefore we use fdisk for bios firmware images and parted for
+        # efi|uefi firmware images.
+        #
+        # This also means we don't support fat
+        # based persistent write partitions to be created as first partition
+        # on efi|uefi ISO hybrid images
+        echo -e "n\np\n$pID\n\n\nw\nq" | fdisk $imageDiskDevice
+    else
+        createPartitionerInput \
+            n p:lxrw $pID . . t $pID $HYBRID_PERSISTENT_ID
+        callPartitioner $input
+    fi
     #======================================
     # check partition device node
     #--------------------------------------
+    if [ $partitionerWriteStatus != 0 ];then
+        Echo "Partition creation failed for device $device"
+        Echo "Persistent writing deactivated"
+        unset kiwi_hybridpersistent
+        return
+    fi
     if ! waitForStorageDevice $(ddn $device $pID);then
         Echo "Partition $pID on $device doesn't appear... fatal !"
         Echo "Persistent writing deactivated"
@@ -8748,7 +9176,10 @@ function createHybridPersistent {
     # create filesystem on write partition
     #--------------------------------------
     local hybrid_device=$(ddn $device $pID)
-    if ! mkfs.$HYBRID_PERSISTENT_FS -L hybrid $HYBRID_PERSISTENT_OPTS $hybrid_device;then
+    local exception_handling="false"
+    if ! createFilesystem \
+        $hybrid_device "" "" "hybrid" $exception_handling $hybrid_fs
+    then
         Echo "Failed to create hybrid persistent filesystem"
         Echo "Persistent writing deactivated"
         unset kiwi_hybridpersistent
@@ -8757,8 +9188,56 @@ function createHybridPersistent {
     #======================================
     # export read-write device name
     #--------------------------------------
+    if [ $hybrid_fs = "fat" ];then
+        # The fat filesystem is not really suitable to be used as rootfs
+        # for linux. Therefore we create a btrfs based file which we store
+        # on the fat filesystem and loop setup it. The size of the file
+        # is set to half the size of the fat device
+        if ! setupHybridCowDevice $hybrid_device;then
+            Echo "Failed to setup hybrid cow device"
+            Echo "Persistent writing deactivated"
+            unset kiwi_hybridpersistent
+            return
+        fi
+    else
+        export HYBRID_RW=$(ddn $device $pID)
+    fi
+    #======================================
+    # skip boot partition setup on overlay
+    #--------------------------------------
     export skipSetupBootPartition=1
-    export HYBRID_RW=$(ddn $device $pID)
+}
+#======================================
+# setupHybridCowDevice
+#--------------------------------------
+function setupHybridCowDevice {
+    local IFS=$IFS_ORIG
+    local hybrid_device=$1
+    mkdir -p /cow
+    for i in 1 2 3;do
+        mount -L hybrid /cow && break || sleep 2
+    done
+    if [ ! $? = 0 ];then
+        Echo "Failed to mount hybrid persistent filesystem !"
+        return 1
+    fi
+    if [ ! -e "/cow/cowfile" ];then
+        local cowsize=$(($(blockdev --getsize64 $hybrid_device) / 2))
+        local exception_handling="false"
+        qemu-img create /cow/cowfile $cowsize
+        if ! createFilesystem \
+            "/cow/cowfile" "" "" "" $exception_handling "btrfs"
+        then
+            Echo "Failed to create hybrid persistent cow filesystem"
+            return 1
+        fi
+    fi
+    export HYBRID_RW=$(loop_setup /cow/cowfile)
+    if [ ! -e "$cowdevice" ];then
+        Echo "Failed to loop setup hybrid cow file !"
+        return 1
+    fi
+    return 0
 }
 #======================================
 # callPartitioner
@@ -8771,7 +9250,8 @@ function callPartitioner {
         echo "w" >> $input
         echo "q" >> $input
         fdasd $imageDiskDevice < $input 1>&2
-        if test $? != 0; then
+        export partitionerWriteStatus=$?
+        if test $partitionerWriteStatus != 0; then
             systemException "Failed to create partition table" "reboot"
         fi
         udevPending
@@ -8887,13 +9367,14 @@ function partedWrite {
     if [ $PARTED_HAVE_ALIGN -eq 1 ];then
         opts="-a cyl"
     fi
-    if ! parted $opts -m -s $device unit cyl $cmds;then
+    parted $opts -m -s $device unit cyl $cmds
+    export partitionerWriteStatus=$?
+    if [ $partitionerWriteStatus != 0 ];then
         if [ ! -z "$kiwi_hybridpersistent" ];then
             # /.../
-            # in case of a iso hybrid table don't stop with
-            # a reboot exception in case of an error. The error
-            # in this case will cause the deactivation of the
-            # persistent writing
+            # in case of a iso hybrid table don't stop with a fatal reboot
+            # exception on error. In this case we want to proceed with the
+            # boot process but deactivate the persistent write feature
             # ----
             return 1
         fi
@@ -9175,6 +9656,7 @@ function reloadKernel {
     # and initrd is loaded via kexec.
     # ----
     local IFS=$IFS_ORIG
+    local prefix=/mnt
     #======================================
     # check proc/cmdline
     #--------------------------------------
@@ -9208,13 +9690,13 @@ function reloadKernel {
     #======================================
     # mount stick
     #--------------------------------------
-    if ! mount -o ro $stickDevice /mnt;then
+    if ! mount -o ro $stickDevice $prefix;then
         systemException "Failed to mount hotfix stick" "reboot"
     fi
     #======================================
     # load kernel
     #--------------------------------------
-    kexec -l /mnt/linux.kexec --initrd=/mnt/initrd.kexec \
+    kexec -l $prefix/linux.kexec --initrd=$prefix/initrd.kexec \
         --append="$(cat /proc/cmdline | sed -e s"@hotfix=1@@")"
     if [ ! $? = 0 ];then
         systemException "Failed to load hotfix kernel" "reboot"
@@ -9234,9 +9716,9 @@ function resizeFilesystem {
     local ramdisk=0
     local resize_fs
     local check
-    local mnt=/mnt-resize
+    local mpoint=/fs-resize
     udevPending
-    mkdir -p $mnt
+    mkdir -p $mpoint
     if echo $deviceResize | grep -qi "/dev/ram";then
         ramdisk=1
     fi
@@ -9265,16 +9747,17 @@ function resizeFilesystem {
             resize_fs="resize2fs -f $deviceResize"
         fi
     elif [ "$FSTYPE" = "btrfs" ];then
-        resize_fs="mount $deviceResize $mnt &&"
+        resize_fs="mount $deviceResize $mpoint &&"
         if lookup btrfs &>/dev/null;then
-            resize_fs="$resize_fs btrfs filesystem resize max $mnt;umount $mnt"
+            resize_fs="$resize_fs btrfs filesystem resize max $mpoint"
+            resize_fs="$resize_fs;umount $mpoint"
         else
-            resize_fs="$resize_fs btrfsctl -r max $mnt;umount $mnt"
+            resize_fs="$resize_fs btrfsctl -r max $mpoint;umount $mpoint"
         fi
         check="btrfsck $deviceResize"
     elif [ "$FSTYPE" = "xfs" ];then
-        resize_fs="mount $deviceResize $mnt &&"
-        resize_fs="$resize_fs xfs_growfs $mnt;umount $mnt"
+        resize_fs="mount $deviceResize $mpoint &&"
+        resize_fs="$resize_fs xfs_growfs $mpoint;umount $mpoint"
         check="xfs_repair -n $deviceResize"
     elif [ "$FSTYPE" = "zfs" ];then
         local device=$(getDiskID $deviceResize)
@@ -9338,26 +9821,83 @@ function createFilesystem {
     local IFS=$IFS_ORIG
     local deviceCreate=$1
     local blocks=$2
-    if [ "$FSTYPE" = "reiserfs" ];then
-        mkreiserfs -f $deviceCreate $blocks 1>&2
-    elif [ "$FSTYPE" = "ext2" ];then
-        mkfs.ext2 -F $deviceCreate $blocks 1>&2
-    elif [ "$FSTYPE" = "ext3" ];then
-        mkfs.ext3 -F $deviceCreate $blocks 1>&2
-    elif [ "$FSTYPE" = "ext4" ];then
-        mkfs.ext4 -F $deviceCreate $blocks 1>&2
-    elif [ "$FSTYPE" = "btrfs" ];then
+    local uuid=$3
+    local label=$4
+    local exception_handling=$5
+    local filesystem=$6
+    local opts=$7
+    if [ -z "$filesystem" ];then
+        filesystem=$FSTYPE
+    fi
+    if [ -z "$exception_handling" ];then
+        exception_handling="true"
+    else
+        exception_handling="false"
+    fi
+    if [[ "$filesystem" =~ ext ]];then
+        opts="$opts -F"
+        if [ ! -z "$uuid" ];then
+            opts="$opts -U $uuid"
+        fi
+        if [ ! -z "$label" ];then
+            opts="$opts -L $label"
+        fi
+    elif [ "$filesystem" = "reiserfs" ];then
+        opts="$opts -f"
+        if [ ! -z "$uuid" ];then
+            opts="$opts -d $uuid"
+        fi
+        if [ ! -z "$label" ];then
+            opts="$opts -l $label"
+        fi
+    elif [ "$filesystem" = "btrfs" ];then
+        opts="$opts -f"
+        if [ ! -z "$uuid" ];then
+            opts="$opts -U $uuid"
+        fi
+        if [ ! -z "$label" ];then
+            opts="$opts -L $label"
+        fi
         if [ ! -z "$blocks" ];then
             local bytes=$((blocks * 4096))
-            mkfs.btrfs -f -b $bytes $deviceCreate
-        else
-            mkfs.btrfs -f $deviceCreate
+            opts="$opts -b $bytes"
         fi
-    elif [ "$FSTYPE" = "xfs" ];then
+    elif [ "$filesystem" = "fat" ];then
+        if [ ! -z "$label" ];then
+            opts="$opts -n $label"
+        fi
+    elif [ "$filesystem" = "ntfs" ];then
+        if [ ! -z "$label" ];then
+            opts="$opts -L $label"
+        fi
+    fi
+    if [ "$filesystem" = "reiserfs" ];then
+        mkreiserfs $opts $deviceCreate $blocks 1>&2
+    elif [ "$filesystem" = "ext2" ];then
+        mkfs.ext2 $opts $deviceCreate $blocks 1>&2
+    elif [ "$filesystem" = "ext3" ];then
+        mkfs.ext3 $opts $deviceCreate $blocks 1>&2
+    elif [ "$filesystem" = "ext4" ];then
+        mkfs.ext4 $opts $deviceCreate $blocks 1>&2
+    elif [ "$filesystem" = "btrfs" ];then
+        # delete potentially existing btrfs on the device because even
+        # with the force option enabled mkfs.btrfs refuses to create a
+        # filesystem if the existing metadata contains the same UUID
+        dd if=/dev/zero of=$deviceCreate bs=1M count=1 conv=notrunc
+        mkfs.btrfs $opts $deviceCreate
+    elif [ "$filesystem" = "xfs" ];then
         mkfs.xfs -f $deviceCreate
+        xfs_admin -U $uuid $deviceCreate
+    elif [ "$filesystem" = "fat" ];then
+        mkfs.fat $opts $deviceCreate $blocks 1>&2
+    elif [ "$filesystem" = "ntfs" ];then
+        mkfs.ntfs $opts $deviceCreate $blocks 1>&2
     else
         # use ext3 by default
-        mkfs.ext3 -F $deviceCreate $blocks 1>&2
+        mkfs.ext3 $opts $deviceCreate $blocks 1>&2
+    fi
+    if [ $exception_handling = "false" ];then
+        return $?
     fi
     if [ ! $? = 0 ];then
         systemException \
@@ -9377,19 +9917,26 @@ function restoreBtrfsSubVolumes {
     local volpath
     local mpoint
     local mppath
+    local volbase
     btrfs subvolume create $root/@ || return
+    local rootid=$(btrfs subvolume list $root | cut -f2 -d ' ')
+    btrfs subvolume set-default $rootid $root || return
     for i in $(cat /.profile | grep -E 'kiwi_LVM_|kiwi_allFreeVolume');do
         variable=$(echo $i|cut -f1 -d=)
         volume=$(echo $i| cut -f3- -d_ | cut -f1 -d=)
-        content=$(eval echo \$$variable)
+        content=$(echo $i|cut -f2 -d= | tr -d \' | tr -d \")
         volpath=$(echo $content | cut -f3 -d:)
         if [ -z "$volpath" ];then
-            volpath=$volume
+            volpath=$(echo $volume | tr _ /)
         fi
-        volpath=$(echo $volpath | cut -f4 -d/ | cut -c3-)
-        mpoint=$(echo $volpath | tr -d LV | tr _ /)
+        mpoint=$(echo $volpath | sed -e s@^LV@@)
+        volbase="$root/@/$(dirname $mpoint)"
+        if [ ! -d $volbase ];then
+            mkdir -p $volbase
+        fi
         btrfs subvolume create $root/@/$mpoint || return
     done
+    umount $root && mount $imageRootDevice $root
 }
 #======================================
 # restoreLVMMetadata
@@ -10080,6 +10627,7 @@ function setupBootPartitionPXE {
     local FSTYPE_SAVE=$FSTYPE
     local mpoint=boot_bind
     unset NETBOOT_ONLY
+    local prefix=/mnt
     #======================================
     # Don't operate with unknown root part
     #--------------------------------------
@@ -10166,7 +10714,7 @@ function setupBootPartitionPXE {
     #--------------------------------------
     mkdir -p /$mpoint
     mount $imageBootDevice /$mpoint
-    cp -a /mnt/boot /$mpoint
+    cp -a $prefix/boot /$mpoint
     if [ -e /boot.tgz ];then
         tar -xf /boot.tgz -C /$mpoint
     fi
@@ -10180,13 +10728,13 @@ function setupBootPartitionPXE {
     # installed in preinit.
     # ---
     if ! isFSTypeReadOnly;then
-        rm -rf /mnt/boot
-        mkdir  /mnt/boot
+        rm -rf $prefix/boot
+        mkdir $prefix/boot
     fi
-    mkdir /mnt/$mpoint
-    mount $imageBootDevice /mnt/$mpoint
+    mkdir $prefix/$mpoint
+    mount $imageBootDevice $prefix/$mpoint
     mount --bind \
-        /mnt/$mpoint/boot /mnt/boot
+        $prefix/$mpoint/boot $prefix/boot
 }
 #======================================
 # setupBootPartition
@@ -10201,6 +10749,7 @@ function setupBootPartition {
     local FSTYPE_SAVE=$FSTYPE
     local fs_type=undef
     local BID=1
+    local prefix=/mnt
     #======================================
     # Check for partition IDs meta data
     #--------------------------------------
@@ -10241,7 +10790,7 @@ function setupBootPartition {
     #--------------------------------------
     mkdir -p /$mpoint
     mount $imageBootDevice /$mpoint
-    cp -a /mnt/boot /$mpoint
+    cp -a $prefix/boot /$mpoint
     if [ -e /boot.tgz ];then
         tar -xf /boot.tgz -C /$mpoint
     fi
@@ -10255,13 +10804,13 @@ function setupBootPartition {
     # installed in preinit.
     # ---
     if ! isFSTypeReadOnly;then
-        rm -rf /mnt/boot
-        mkdir  /mnt/boot
+        rm -rf $prefix/boot
+        mkdir $prefix/boot
     fi
-    mkdir /mnt/$mpoint
-    mount $imageBootDevice /mnt/$mpoint
+    mkdir $prefix/$mpoint
+    mount $imageBootDevice $prefix/$mpoint
     mount --bind \
-        /mnt/$mpoint/boot /mnt/boot
+        $prefix/$mpoint/boot $prefix/boot
 }
 #======================================
 # isVirtioDevice
@@ -10463,6 +11012,9 @@ function updatePartitionTable {
     # check table type
     #--------------------------------------
     plabel=$(cat /tmp/table | grep ^$device: | cut -f6 -d:)
+    if [[ "$plabel" =~ gpt ]];then
+        relocateGPTAtEndOfDisk
+    fi
     if [ ! "$plabel" = "gpt_sync_mbr" ];then
         return 0
     fi
@@ -10527,12 +11079,14 @@ function resetBootBind {
     #======================================
     # reset bind mount to standard boot dir
     #--------------------------------------
+    shopt -s dotglob
     umount $bprefix/boot
     mv /$bootdir/boot /$bootdir/tmp
     mv /$bootdir/tmp/* /$bootdir
     rm -rf /$bootdir/tmp
     umount /$bootdir
     rmdir /$bootdir
+    shopt -u dotglob
     #======================================
     # update fstab entry
     #--------------------------------------
@@ -10576,19 +11130,20 @@ function setupKernelLinks {
     # according to the different boot-up situations
     # ----
     local IFS=$IFS_ORIG
+    local prefix=/mnt
     #======================================
     # mount boot partition if required
     #--------------------------------------
     local mountCalled=no
     if [ -e "$imageBootDevice" ] && blkid $imageBootDevice;then
-        if kiwiMount $imageBootDevice "/mnt";then
+        if kiwiMount $imageBootDevice "$prefix";then
             mountCalled=yes
         fi
     fi
     #======================================
     # Change to boot directory
     #--------------------------------------
-    pushd /mnt/boot >/dev/null
+    pushd $prefix/boot >/dev/null
     #======================================
     # remove garbage if possible 
     #--------------------------------------
@@ -10598,7 +11153,7 @@ function setupKernelLinks {
     #======================================
     # setup if overlay filesystem is used
     #--------------------------------------
-    if  [ "$OEM_KIWI_INITRD" = "true" ] || \
+    if  [ "$kiwi_oemkboot" = "true" ] || \
         [ "$PXE_KIWI_INITRD" = "yes" ] || \
         isFSTypeReadOnly
     then
@@ -10649,31 +11204,8 @@ function setupKernelLinks {
     #--------------------------------------
     popd >/dev/null
     if [ "$mountCalled" = "yes" ];then
-        umount /mnt
+        umount $prefix
     fi
-}
-#======================================
-# createOriginSnapshot
-#--------------------------------------
-function createOriginSnapshot {
-    # /.../
-    # create a snapshot origin which allows to keep
-    # track of any changes happened during the live
-    # time of the image. This origin snapshot requires
-    # the use of the btrfs filesystem
-    # ----
-    local IFS=$IFS_ORIG
-    if [ ! "$FSTYPE" = "btrfs" ];then
-        return
-    fi
-    if ! lookup btrfs &>/dev/null;then
-        echo "Can't find btrfs tools, creation of origin snapshot skipped !"
-        return
-    fi
-    for vol in $(btrfs subvolume list / | grep / | cut -f2 -d /);do
-        btrfs subvolume snapshot -r /$vol /origin_$vol
-    done
-    btrfs subvolume snapshot -r / /origin
 }
 #======================================
 # activateBootPartition
@@ -10719,6 +11251,30 @@ function updateProtectiveMBR {
     if [ ! $? = 0 ]; then
         Echo "Failed to create protective MBR !"
         Echo "This could prevent the system to boot via EFI"
+    fi
+}
+#======================================
+# relocateGPTAtEndOfDisk
+#--------------------------------------
+function relocateGPTAtEndOfDisk {
+    local IFS=$IFS_ORIG
+    local device=$1
+    local input=/part.input
+    if ! lookup gdisk &>/dev/null;then
+        Echo "Warning, gdisk tool not found"
+        Echo "This could break the resize of the image"
+    fi
+    rm -f $input
+    if [ ! -e "$device" ];then
+        device=$imageDiskDevice
+    fi
+    for cmd in x e w y; do
+        echo $cmd >> $input
+    done
+    gdisk $device < $input 1>&2
+    if [ ! $? = 0 ]; then
+        Echo "Failed to write backup GPT at end of disk !"
+        Echo "This could break the resize of the image"
     fi
 }
 #======================================
@@ -10780,6 +11336,107 @@ function backupGPT {
     local device=$1
     local pcount=$2
     dd if=$device bs=1 count=$(((128 * pcount) + 1024))
+}
+#======================================
+# loop_setup
+#--------------------------------------
+function loop_setup {
+    local IFS=$IFS_ORIG
+    local target=$1
+    local logical_sector_size
+    if [ ! -z "$kiwi_target_blocksize" ];then
+        logical_sector_size="-L $kiwi_target_blocksize"
+    fi
+    local loop=$(losetup $logical_sector_size -f --show $target)
+    if [ ! -e "$loop" ];then
+        return 1
+    fi
+    echo $loop
+}
+#======================================
+# loop_delete
+#--------------------------------------
+function loop_delete {
+    local IFS=$IFS_ORIG
+    local target=$1
+    losetup -d $target
+}
+#======================================
+# startMultipathd
+#--------------------------------------
+function startMultipathd {
+    local multipath_config=/etc/multipath.conf
+    local wwid_timeout=3
+    #======================================
+    # check already running
+    #--------------------------------------
+    if pidof multipathd &>/dev/null; then
+        Echo "startMultipathd: daemon already running"
+        return 0
+    fi
+    #======================================
+    # check the tools
+    #--------------------------------------
+    for tool in multipathd multipath;do
+        if ! lookup $tool &>/dev/null;then
+            Echo "startMultipathd: $tool not found"
+            return 1
+        fi
+    done
+    #======================================
+    # lookup multipath configuration
+    #--------------------------------------
+    if [ ! -f $multipath_config ];then
+        Echo "startMultipathd: no multipath configuration found"
+        return 1
+    fi
+    #======================================
+    # load multipath dm modules
+    #--------------------------------------
+    if ! modprobe dm-multipath;then
+        Echo "startMultipathd: can't load dm-multipath"
+        return 1
+    fi
+    #======================================
+    # start multipath daemon
+    #--------------------------------------
+    mkdir -p /etc/multipath
+    if ! multipathd;then
+        Echo "startMultipathd: failed to start multipathd"
+        return 1
+    fi
+    #======================================
+    # wait for devices to settle
+    #--------------------------------------
+    udevPending
+    #======================================
+    # sleep for a while
+    #--------------------------------------
+    # make sure /etc/multipath/wwids are written
+    if [ ! -z "$kiwi_wwid_wait_timeout" ];then
+        wwid_timeout=$kiwi_wwid_wait_timeout
+    fi
+    sleep $wwid_timeout
+    export MULTIPATHD_PID=$(pidof multipathd | tr ' ' ,)
+    return 0
+}
+#======================================
+# stopMultipathd
+#--------------------------------------
+function stopMultipathd {
+    # /.../
+    # stop multipathd started by us
+    # ----
+    local IFS=$IFS_ORIG
+    if [ -z "$MULTIPATHD_PID" ];then
+        return
+    fi
+    local IFS=,
+    for p in $MULTIPATHD_PID; do
+        if kill -0 $p &>/dev/null;then
+            kill $p
+        fi
+    done
 }
 #======================================
 # initialize

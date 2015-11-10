@@ -7,8 +7,11 @@ BELAGIOBIN="/usr/bin/omxregister-bellagio"
 GST="gst-launch-1.0"
 GSTIN="gst-inspect-1.0"
 ##FPS 
-FPSIN="25/1"
-#FPSOUT="25/1"
+MONITOR_H=$(xrandr | grep '*'|head -1| awk '{print $1}'  | awk -Fx '{print $1}')
+MONITOR_W=$(xrandr | grep '*'|head -1| awk '{print $1}'  | awk -Fx '{print $2}')
+M_H=$(($MONITOR_H - 1))
+M_W=$(($MONITOR_W - 1))
+FPS="25/1"
 TIME=$(date +"%Y-%m-%d_%H%M%S")
 DIRM="$HOME"
 FILEMANE=""
@@ -23,6 +26,7 @@ ENCODER="! x264enc  speed-preset=faster qp-min=30 tune=zerolatency "
 OMX="! omxh264enc ! h264parse "
 ##VAAPI
 VAAPI="! vaapiencode_h264  dct8x8=true ! vaapiparse_h264 "
+VIDEOCONV="! videoconvert "
 NOGUI=""
 #SOUND SOURCE
 ##pactl list | grep -A2 'Source #' | grep 'Name: ' | cut -d" " -f2
@@ -75,8 +79,9 @@ while getopts ":h?sx:d:n:" opt; do
         =v)
         if  [[ '$GSTIN | grep vaapiencode_h264 >/dev/null'  ]]
 	     then ENCODER="$VAAPI "
+	     VIDEOCONV="! vaapipostproc format=i420"
 	     echo "Using vaapiencode_h264 encoder"
-	     REC="$GST -e  ximagesrc display-name=:$DNUM use-damage=0 ! multiqueue ! video/x-raw,format=BGRx ! videoconvert ! video/x-raw,format=$FORMAT,framerate=$FPSIN  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
+	     REC="$GST -e  ximagesrc display-name=:$DNUM use-damage=0 startx=0 starty=0 endx=$M_H endy=$M_W  ! multiqueue ! video/x-raw,format=BGRx,framerate=$FPS  $VIDEOCONV  ! video/x-raw,format=$FORMAT,framerate=$FPS  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
              echo $REC
              exec $REC
              exit 0
@@ -89,7 +94,7 @@ while getopts ":h?sx:d:n:" opt; do
 	      then ENCODER="$OMX"
 	      FORMAT="NV12"
 	      echo "Using omxh264enc encoder"
-	      REC="$GST -e  ximagesrc display-name=:$DNUM  use-damage=0 ! multiqueue ! video/x-raw,format=BGRx ! videoconvert ! video/x-raw,format=$FORMAT,framerate=$FPSIN  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
+	      REC="$GST -e  ximagesrc display-name=:$DNUM  use-damage=0 startx=0 starty=0 endx=$M_H endy=$M_W ! multiqueue ! video/x-raw,format=BGRx,framerate=$FPS  $VIDEOCONV ! video/x-raw,format=$FORMAT,framerate=$FPS  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
               echo $REC
               exec $REC
               exit 0
@@ -99,7 +104,7 @@ while getopts ":h?sx:d:n:" opt; do
         ;;
         =x)
         ENCODER="! x264enc  speed-preset=faster qp-min=30 tune=zerolatency "
-        REC="$GST -e   ximagesrc display-name=:$DNUM  use-damage=0 ! multiqueue ! video/x-raw,format=BGRx ! videoconvert ! video/x-raw,format=$FORMAT,framerate=$FPSIN  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
+        REC="$GST -e   ximagesrc display-name=:$DNUM  use-damage=0 startx=0 starty=0 endx=$M_H endy=$M_W ! multiqueue ! video/x-raw,format=BGRx,framerate=$FPS  $VIDEOCONV ! video/x-raw,format=$FORMAT,framerate=$FPS  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
         echo $REC
         exec $REC
         exit 0
@@ -142,6 +147,7 @@ case "$DI" in
        2)
 	   if  [[ '$GSTIN | grep vaapiencode_h264 >/dev/null'  ]]
 	     then ENCODER="$VAAPI "
+	     VIDEOCONV="! vaapipostproc format=i420"
 	     echo "Using vaapiencode_h264 encoder"
 	     else echo "Gstreamer vaapiencode_h264 not found"
 	   fi;;
@@ -163,10 +169,10 @@ VID=`kdialog --menu "CHOOSE RECORD MODE:" A "FULL SCREEN REC" B "WINDOW REC";`
 
 if [ "$?" = 0 ]; then
 	if [ "$VID" = A ]; then
-		REC="$GST -e   ximagesrc display-name=:$DNUM  use-damage=0 ! multiqueue ! video/x-raw,format=BGRx ! videoconvert ! video/x-raw,format=$FORMAT,framerate=$FPSIN  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
+		REC="$GST -e   ximagesrc display-name=:$DNUM  use-damage=0 startx=0 starty=0 endx=$M_H endy=$M_W ! multiqueue ! video/x-raw,format=BGRx,framerate=$FPS  $VIDEOCONV ! video/x-raw,format=$FORMAT,framerate=$FPS  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
 	elif [ "$VID" = B ]; then
 	        XID=`xwininfo |grep 'Window id' | awk '{print $4;}'`
-		REC="$GST -e    ximagesrc  xid=$XID  display-name=:$DNUM  use-damage=0 ! multiqueue ! video/x-raw,format=BGRx ! videoconvert ! video/x-raw,format=$FORMAT,framerate=$FPSIN  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
+		REC="$GST -e    ximagesrc  xid=$XID  display-name=:$DNUM  use-damage=0 ! multiqueue ! video/x-raw,format=BGRx,framerate=$FPS  $VIDEOCONV ! video/x-raw,format=$FORMAT,framerate=$FPS  ! multiqueue   $ENCODER ! multiqueue ! $MUX  $SOUND  muxer. $FOUT"
 	else
 		echo "ERROR";
 	fi;

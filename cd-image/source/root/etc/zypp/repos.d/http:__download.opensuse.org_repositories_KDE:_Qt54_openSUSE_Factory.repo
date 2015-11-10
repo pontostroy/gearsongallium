@@ -1,7 +1,0 @@
-[http:__download.opensuse.org_repositories_KDE:_Qt54_openSUSE_Factory]
-enabled=1
-autorefresh=1
-baseurl=http://download.opensuse.org/repositories/KDE:/Qt54/openSUSE_Factory/
-type=rpm-md
-priority=30
-keeppackages=1

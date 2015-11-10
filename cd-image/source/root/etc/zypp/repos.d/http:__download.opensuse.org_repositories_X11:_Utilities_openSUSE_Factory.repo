@@ -1,6 +1,0 @@
-[http:__download.opensuse.org_repositories_X11:_Utilities_openSUSE_Factory]
-enabled=1
-autorefresh=1
-baseurl=http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Factory/
-type=rpm-md
-keeppackages=1

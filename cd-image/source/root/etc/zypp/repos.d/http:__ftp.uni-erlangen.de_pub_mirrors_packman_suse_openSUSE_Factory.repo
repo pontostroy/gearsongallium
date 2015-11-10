@@ -1,6 +1,0 @@
-[http:__ftp.uni-erlangen.de_pub_mirrors_packman_suse_openSUSE_Factory]
-enabled=1
-autorefresh=1
-baseurl=http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Factory/
-type=rpm-md
-keeppackages=1

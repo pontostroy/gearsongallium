@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_repositories_home:_seife:_testing_openSUSE_Leap_42.1]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/home:/seife:/testing/openSUSE_Leap_42.1/
+type=rpm-md
+priority=110
+keeppackages=1

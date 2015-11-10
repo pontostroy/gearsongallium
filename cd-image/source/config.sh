@@ -88,14 +88,6 @@ rm -rf /usr/share/wallpapers/Red_Leaf
 rm -rf /usr/share/wallpapers/openSU*
 rm -rf /usr/share/wallpapers/Pr*
 rm -rf /usr/share/wallpapers/El*
-rm -rf /var/log/updateT*
-rm -rf /usr/lib/locale/z*
-rm -rf /usr/lib/locale/f*
-rm -rf /usr/lib/locale/es*
-rm -rf /usr/lib/locale/s*
-rm -rf /usr/lib/locale/m*
-rm -rf /usr/lib/locale/n*
-rm -rf /usr/lib/locale/k*
 rm -rf /usr/share/wine/gecko
 rm  -f /usr/share/cracklib/pw_dict.pwd
 rm  -f /usr/share/autostart/nepomukserver.desktop
@@ -131,14 +123,13 @@ rm -rf /usr/share/ghostscript*
 rm -rf /usr/share/sounds/
 rm -rf /usr/share/autostart/SUSEgreeter.desktop
 rm -rf /usr/share/autostart/krunner.desktop
-ln -s /usr/lib64/libGLEW.so.1.12 /usr/lib64/libGLEW.so.1.5
-ln -s /usr/lib/libGLEW.so.1.12 /usr/lib/libGLEW.so.1.5
+ln -s /usr/lib64/libGLEW.so.1.13 /usr/lib64/libGLEW.so.1.5
+ln -s /usr/lib/libGLEW.so.1.13 /usr/lib/libGLEW.so.1.5
 ln -s /usr/lib/libudev.so.1.4.0 /usr/lib/libudev.so.0
 ln -s /usr/lib64/libudev.so.1.4.0 /usr/lib64/libudev.so.0
 ln -s /usr/lib/libbz2.so.1 /usr/lib/libbz2.so.1.0
 ln -s /usr/lib64/libbz2.so.1 /usr/lib64/libbz2.so.1.0
 ln -s /sbin/lspci /bin/lspci
-prelink -afmR
 baseSetRunlevel 5
 baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER sddm
 baseUpdateSysConfig /etc/sysconfig/network/config NETWORKMANAGER yes

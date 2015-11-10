@@ -1,0 +1,6 @@
+[http:__download.opensuse.org_repositories_X11:_Utilities_openSUSE_Leap_42.1]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Leap_42.1/
+type=rpm-md
+keeppackages=1

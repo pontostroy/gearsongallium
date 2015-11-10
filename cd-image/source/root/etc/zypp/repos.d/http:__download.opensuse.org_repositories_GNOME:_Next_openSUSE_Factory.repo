@@ -1,6 +1,0 @@
-[http:__download.opensuse.org_repositories_GNOME:_Next_openSUSE_Factory]
-enabled=1
-autorefresh=1
-baseurl=http://download.opensuse.org/repositories/GNOME:/Next/openSUSE_Factory/
-type=rpm-md
-keeppackages=1

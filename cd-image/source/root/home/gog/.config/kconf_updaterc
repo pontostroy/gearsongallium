@@ -1,23 +1,28 @@
 updateInfoAdded=true
 
+[frameworksintegration-5.16-font.upd]
+ctime=1446456273
+done=frameworksintegration-5.16-font.sh
+mtime=1446456273
+
 [kcalcrc.upd]
-ctime=1430070307
-mtime=1430070307
+ctime=1445100516
+mtime=1445100516
 
 [kde4breeze.upd]
-ctime=1433283316
+ctime=1446842063
 done=5.0KDE4Breeze_2
-mtime=1433283316
+mtime=1446842063
 
 [kget.upd]
-ctime=1430070841
-mtime=1430070841
+ctime=1445100934
+mtime=1445100934
 
 [krdb_libpathwipe.upd]
-ctime=1433539976
-mtime=1433539976
+ctime=1446859209
+mtime=1446859209
 
 [kscreenlocker.upd]
-ctime=1433539955
+ctime=1447064944
 done=0.1-autolock
-mtime=1433539955
+mtime=1447064944

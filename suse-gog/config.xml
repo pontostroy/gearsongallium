@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.1" name="initrd-isoboot-suse-13.1">
+<image schemaversion="6.2" name="initrd-isoboot-suse-gog">
 	<description type="boot">
 		<author>Marcus Schaefer</author>
 		<contact>ms@novell.com</contact>
@@ -69,7 +69,7 @@
 		<file name="drivers/xen/*"/>
 	</drivers>
 	<repository type="yast2" status="replaceable">
-		<source path="obs://13.1/repo/oss"/>
+		<source path="http://download.opensuse.org/distribution/leap/42.1/repo/oss/"/>
 	</repository>
 	<packages type="image" profiles="std">
 		<package name="kernel-default"/>
@@ -88,8 +88,6 @@
 		<package name="xen" arch="x86_64"/>
 	</packages>
 	<packages type="image" profiles="desktop">
-		<package name="kernel-desktop" arch="x86_64"/>
-		<package name="kernel-desktop" arch="i686"/>
 		<package name="kernel-default" arch="i586"/>
 	</packages>
 	<packages type="image" profiles="custom"><!-- empty custom section to allow bootincluding custom kernel --></packages>
@@ -102,6 +100,7 @@
 		<package name="filesystem"/>
 		<package name="fribidi"/>
 		<package name="gawk"/>
+		<package name="kbd"/>
 		<package name="gfxboot"/>
 		<package name="glibc"/>
 		<package name="glibc-locale"/>

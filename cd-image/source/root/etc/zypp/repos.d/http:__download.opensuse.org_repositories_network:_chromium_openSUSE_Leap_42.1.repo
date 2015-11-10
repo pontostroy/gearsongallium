@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_repositories_network:_chromium_openSUSE_Leap_42.1]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/network:/chromium/openSUSE_Leap_42.1/
+type=rpm-md
+priority=55
+keeppackages=1

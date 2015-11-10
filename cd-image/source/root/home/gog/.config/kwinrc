@@ -1,2 +1,8 @@
 [Compositing]
 OpenGLIsUnsafe=false
+
+[Desktops]
+Number=1
+
+[Effect-Zoom]
+InitialZoom=1

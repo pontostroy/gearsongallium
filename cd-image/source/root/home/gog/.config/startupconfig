@@ -1,10 +1,10 @@
 #! /bin/sh
 # kcminputrc Mouse cursorTheme 'breeze_cursors'
-kcminputrc_mouse_cursortheme=Oxygen_White
+kcminputrc_mouse_cursortheme=breeze_cursors
 # kcminputrc Mouse cursorSize ''
 kcminputrc_mouse_cursorsize=''
 # ksplashrc KSplash Theme Breeze
-ksplashrc_ksplash_theme=Breeze
+ksplashrc_ksplash_theme=org.openSUSE.desktop
 # ksplashrc KSplash Engine KSplashQML
 ksplashrc_ksplash_engine=KSplashQML
 # kdeglobals KScreen ScaleFactor 1

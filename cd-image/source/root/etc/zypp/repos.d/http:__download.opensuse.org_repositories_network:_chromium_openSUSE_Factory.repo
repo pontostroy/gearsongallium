@@ -1,6 +1,0 @@
-[http:__download.opensuse.org_repositories_network:_chromium_openSUSE_Factory]
-enabled=1
-autorefresh=1
-baseurl=http://download.opensuse.org/repositories/network:/chromium/openSUSE_Factory/
-type=rpm-md
-keeppackages=1

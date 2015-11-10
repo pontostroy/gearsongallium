@@ -7,8 +7,8 @@
                 <specification>Gears_on_Gallium</specification>
         </description>
         <preferences>
-                <type flags="overlay" hybrid="true" bootkernel="desktop" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="desktop" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>15.08.29</version>
+                <type flags="overlay" hybrid="true" bootkernel="std" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
+                <version>15.11.09</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -28,25 +28,25 @@
         <packages patternType="onlyRequired" type="image">
                 <package name="plymouth-branding-openSUSE" bootinclude="true" bootdelete="true"/>
                 <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
+		<package name="plasma5-desktop-branding-upstream"/>
                 <package name="yast2-control-center"/>
                 <package name="yast2-storage"/>
                 <package name="yast2-control-center-qt"/>
                 <package name="libstdc++6"/>
                 <package name="ca-certificates-cacert"/>
                 <package name="ca-certificates-mozilla"/>
-                <package name="libcrypto35"/>
-                <package name="libssl35"/>
-                <package name="libtls6"/>
+                <package name="libcrypto36"/>
+                <package name="libssl37"/>
+                <package name="libtls9"/>
                 <package name="yast2-network"/>
 		<package name="SuSEfirewall2"/>
 		<package name="yast2-sound"/>
                 <package name="chromium-pepper-flash"/>
                 <package name="yast2-sysconfig"/>
                 <package name="yast2-qt-branding-openSUSE"/>
-                <package name="yast2-theme-openSUSE"/>
                 <package name="yast2-branding-openSUSE"/>
-                <package name="libyui-qt-pkg6"/>
-                <package name="libyui-ncurses-pkg6"/>
+                <package name="libyui-qt-pkg7"/>
+                <package name="libyui-ncurses-pkg7"/>
                 <package name="yast2-sudo"/>
                 <package name="yast2-users"/>
                 <package name="valgrind"/>
@@ -54,11 +54,9 @@
                 <package name="phonon-backend-gstreamer"/>
                 <package name="gstreamer"/>
                 <package name="gstreamer-plugins-base"/>
-                <package name="libOpenThreads1"/>
-                <package name="libOpenThreads20"/>
                 <package name="kernel-firmware"/>
                 <package name="alsa-utils"/>
-                <package name="kernel-desktop"/>
+                <package name="kernel-default"/>
 		<package name="libXtst6"/>
                 <package name="xf86-video-ati"/>
                 <package name="xf86-video-intel"/>
@@ -72,8 +70,8 @@
                 <package name="libupower-glib3"/>
                 <package name="upower"/>
                 <package name="smplayer"/>
-                <package name="chromium"/>
-                <package name="chromium-ffmpeg"/>
+                <package name="chromium-beta"/>
+		<!-- <package name="chromium-beta-ffmpeg"/> -->
                 <package name="clementine"/>
                 <package name="baloo-file"/>
 		<package name="bzip2"/>
@@ -106,7 +104,6 @@
                 <package name="procps"/>
                 <package name="xrandr"/>
                 <package name="netcfg"/>
-                <package name="module-init-tools"/>
                 <package name="kbd"/>
                 <package name="hwinfo"/>
                 <package name="aaa_base"/>
@@ -120,19 +117,19 @@
                 <package name="libtxc_dxtn"/>
                 <package name="wireless-tools"/>
                 <package name="wireless-regdb"/>
-                <package name="kwin"/>
-                <package name="misc-console-font"/>
+                <package name="kwin5"/>
                 <package name="libfreeimageplus3"/>
                 <package name="xf86-input-evdev"/>
                 <package name="xf86-input-keyboard"/>
                 <package name="xf86-input-joystick"/>
                 <package name="xf86-input-mouse"/>
+		<package name="xf86-input-libinput"/>
                 <package name="xf86-input-wacom"/>
                 <package name="xf86-input-void"/>
                 <package name="xf86-input-synaptics"/>
                 <package name="xf86-input-vmmouse"/>
                 <package name="konsole"/>
-                <package name="cpufrequtils"/>
+                <package name="cpupower"/>
                 <package name="libxine2"/>
                 <package name="liberation-fonts"/>
                 <package name="ntfs-3g"/>
@@ -140,7 +137,6 @@
                 <package name="acpica"/>
                 <package name="acpi"/>
                 <package name="libalut0"/>
-                <package name="libxine2-sdl"/>
                 <package name="libSDL_mixer-1_2-0"/>
                 <package name="libSDL_image-1_2-0"/>
                 <package name="libSDL_sound-1_0-1"/>
@@ -174,7 +170,6 @@
                 <package name="plib"/>
                 <package name="aria2"/>
                 <package name="kwin5"/>
-                <package name="plasma5-desktop-branding-openSUSE"/>
                 <package name="kde-gtk-config5"/>
                 <package name="aalib"/>
                 <package name="ark"/>
@@ -182,7 +177,6 @@
                 <package name="kscreen5"/>
                 <package name="plasma5-desktop"/>
                 <package name="plasma5-session"/>
-                <package name="plasma5-workspace-branding-openSUSE"/>
                 <package name="ffmpeg"/>
                 <package name="krdc"/>
                 <package name="dosfstools"/>
@@ -359,7 +353,7 @@
 		<package name="gphotofs"/>
 		<package name="libgphoto2-6"/>
 		<package name="Mesa-libd3d"/>
-		<package name="libGLEW1_12"/>
+		<package name="libGLEW1_13"/>
 		<package name="dbus-1-x11"/>
 		<package name="fuse-exfat"/>
 		<package name="chntpw"/>
@@ -401,10 +395,10 @@
 		<package name="libXtst6-32bit"/>
 		<package name="gconf2-32bit"/>
 		<package name="libgphoto2-6-32bit"/>
-                <package name="libcrypto35-32bit"/>
-                <package name="libssl35-32bit"/>
-                <package name="libtls6-32bit"/>
-		<package name="libGLEW1_12-32bit"/>
+                <package name="libcrypto36-32bit"/>
+                <package name="libssl37-32bit"/>
+                <package name="libtls9-32bit"/>
+		<package name="libGLEW1_13-32bit"/>
                 <package name="cups-libs-32bit"/>
         </packages>
         <packages type="bootstrap">
@@ -417,60 +411,51 @@
                 <package name="libstdc++6"/>
         </packages>
         <repository type="yast2"  imageinclude="false" >
-                <source path="http://download.opensuse.org/factory/repo/oss/"/>
+                <source path="http://download.opensuse.org/distribution/leap/42.1/repo/oss/"/>
         </repository>
         <repository type="yast2"  imageinclude="false"  >
-                <source path="http://download.opensuse.org/factory/repo/non-oss/"/>
+                <source path="http://download.opensuse.org/distribution/leap/42.1/repo/non-oss/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Tumbleweed/"/>
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Qt55/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Qt55/openSUSE_Leap_42.1/"/>
         </repository>       
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Extra/KDE_Unstable_Frameworks_openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Extra/KDE_Unstable_Extra_openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Applications/KDE_Unstable_Frameworks_openSUSE_Factory/"/>
-        </repository>
-	<repository type="rpm-md" priority="16" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/multimedia:/libs/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Applications/KDE_Unstable_Frameworks_openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" priority="15" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Factory/"/>
+                <source path="http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/filesystems/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/games/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/games/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/games:/tools/openSUSE_Leap_42.1/"/>
         </repository>
-        <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/games:/tools/openSUSE_Factory/"/>
-        </repository>
-        <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/network:/chromium/openSUSE_Factory/"/>
-        </repository>
-        <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/GNOME:/Next/openSUSE_Factory/"/>
-        </repository>
+        <repository type="rpm-md" priority="55" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/network:/chromium/openSUSE_Leap_42.1/"/>
+	</repository>
 	<repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Leap_42.1/"/>
         </repository>
 	<repository type="rpm-md" priority="110" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/seife:/testing//openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/home:/seife:/testing/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" priority="25" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Factory/"/>
+                <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Leap_42.1/"/>
         </repository>
 </image>
