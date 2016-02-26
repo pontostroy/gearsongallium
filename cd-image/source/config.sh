@@ -97,6 +97,10 @@ rm  -f /usr/share/autostart/konqy_preload.desktop
 rm  -f /usr/share/autostart/kaddressbookmigrator.desktop
 rm -rf /usr/lib64/kde4/activitymanager_plugin_nepomuk.so
 rm -rf /usr/lib64/kde4/nepom*
+rm -rf /usr/lib64/libclang*.a
+rm -rf /usr/lib64/libllvm*.a
+rm -rf /usr/lib/libclang*.a
+rm -rf /usr/lib/libllvm*.a
 rm -rf /usr/lib/kde4/krunner_nep*
 rm -rf /usr/share/kde4/services/activitymanager-plugin-nepomukcontroller*
 rm -rf /usr/share/kde4/services/nepo*
@@ -117,6 +121,7 @@ rm -rf /var/log/zypp/*
 rm -rf /var/log/pbl.log
 rm -f /usr/bin/mencoder
 rm -f /usr/bin/clang*
+rm -f /usr/bin/c-index-test
 rm  -f /usr/bin/pp-trace
 rm -f /usr/bin/gs
 rm -rf /usr/share/ghostscript*

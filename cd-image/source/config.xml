@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="std" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>15.11.09</version>
+                <version>16.02.26</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -71,7 +71,7 @@
                 <package name="upower"/>
                 <package name="smplayer"/>
                 <package name="chromium-beta"/>
-		<!-- <package name="chromium-beta-ffmpeg"/> -->
+		<!--<package name="chromium-beta-ffmpeg"/> -->
                 <package name="clementine"/>
                 <package name="baloo-file"/>
 		<package name="bzip2"/>
@@ -297,18 +297,16 @@
 		<package name="scrot"/>
 		<package name="qps"/>
 		<package name="wmctrl"/>
-	<!--	<package name="Mesa-libOpenCL-devel"/>
-              <package name="Mesa-libOpenCL1"/> 
+                <package name="Mesa-libOpenCL"/> 
 		<package name="ocl-icd-devel"/>
                 <package name="libOpenCL1"/>
-                <package name="libclc-devel"/>-->
+                <package name="libclc-devel"/>
                 <package name="grub"/>
                 <package name="grub2"/>
                 <package name="grub2-i386-pc"/>
                 <package name="grub2-x86_64-efi"/>
                 <package name="xdpyinfo"/>
                 <package name="steam"/>
-                <package name="prelink"/>
                 <package name="aaa_base-extras"/>
                 <package name="gpart"/>
                 <package name="libuuid-devel"/>
@@ -361,7 +359,10 @@
 		<package name="ucode-intel"/>
 		<package name="weston"/>
                 <package name="libSM6"/>
+		<package name="libva_mesa"/>
                 <package name="libKF5KDcraw5"/>
+		<package name="xdriinfo"/>
+		<package name="driconf"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
@@ -400,6 +401,7 @@
                 <package name="libtls9-32bit"/>
 		<package name="libGLEW1_13-32bit"/>
                 <package name="cups-libs-32bit"/>
+		<package name="libva_mesa-32bit"/>
         </packages>
         <packages type="bootstrap">
                 <package name="glibc-locale"/>
@@ -420,7 +422,7 @@
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Qt55/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Qt56/openSUSE_Leap_42.1/"/>
         </repository>       
         <repository type="rpm-md" priority="30" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.1/"/>
