@@ -99,9 +99,10 @@ DialogWidth=720
 [Containments][15][General]
 ToolBoxButtonState=topright
 ToolBoxButtonX=1891
+pressToMoveHelp=false
 
 [Containments][15][Wallpaper][org.kde.image][General]
-Image=file:///usr/share/wallpapers/Dance_of_the_Spirits/contents/images/1920x1080.jpg
+Image=file:///usr/share/wallpapers/PastelHills/contents/images/1920x1080.jpg
 height=1080
 width=1920
 

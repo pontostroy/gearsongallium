@@ -36,12 +36,19 @@
                 <package name="ca-certificates-cacert"/>
                 <package name="ca-certificates-mozilla"/>
                 <package name="libcrypto36"/>
+		<package name="ConsoleKit"/>
+		<package name="ConsoleKit-x11"/>
                 <package name="libssl37"/>
+		<package name="otter-browser"/>
                 <package name="libtls9"/>
                 <package name="yast2-network"/>
 		<package name="SuSEfirewall2"/>
 		<package name="yast2-sound"/>
+		<package name="kwayland-integration"/>
+		<package name="libqt5-qtwayland"/>
+		<package name="vaapi-wayland-tools"/>
                 <package name="chromium-pepper-flash"/>
+		<package name="chromium-beta-desktop-kde"/>
                 <package name="yast2-sysconfig"/>
                 <package name="yast2-qt-branding-openSUSE"/>
                 <package name="yast2-branding-openSUSE"/>
@@ -87,8 +94,10 @@
                 <package name="glibc-locale"/>
                 <package name="syslogd"/>
                 <package name="yast2-live-installer"/>
+		<package name="plasma-pa"/>
                 <package name="plasma-nm5"/>
                 <package name="plasma-nm5-pptp"/>
+		<package name="plasma-nm5-ssh"/>
                 <package name="plasma-nm5-openvpn"/>
                 <package name="plasma5-workspace-wallpapers"/>
                 <package name="net-tools"/>
@@ -177,6 +186,7 @@
                 <package name="kscreen5"/>
                 <package name="plasma5-desktop"/>
                 <package name="plasma5-session"/>
+		<package name="plasma5-addons"/>
                 <package name="ffmpeg"/>
                 <package name="krdc"/>
                 <package name="dosfstools"/>
@@ -255,7 +265,6 @@
                 <package name="libvdpau_radeonsi"/>
                 <package name="libvdpau_nouveau"/>
                 <package name="gparted"/>
-                <package name="gtk2-theme-oxygen"/>
                 <package name="make"/>
                 <package name="gcc"/>
                 <package name="gcc-c++"/>
@@ -355,6 +364,7 @@
 		<package name="dbus-1-x11"/>
 		<package name="fuse-exfat"/>
 		<package name="chntpw"/>
+		<package name="less"/>
 		<package name="ucode-amd"/>
 		<package name="ucode-intel"/>
 		<package name="weston"/>

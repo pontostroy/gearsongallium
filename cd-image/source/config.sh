@@ -71,9 +71,12 @@ rm -rf /usr/share/wallpapers/Autumn
 rm -rf /usr/share/wallpapers/B*
 rm -rf /usr/share/wallpapers/Evening
 rm -rf /usr/share/wallpapers/F*
+rm -rf /usr/share/wallpapers/E*
+rm -rf /usr/share/wallpapers/O*
 rm -rf /usr/share/wallpapers/N*
 rm -rf /usr/share/wallpapers/W*
 rm -rf /usr/share/wallpapers/Grey
+rm -rf /usr/share/wallpapers/K*
 rm -rf /usr/share/wallpapers/S*
 rm -rf /usr/share/wallpapers/Finally_Summer_in_Germany
 rm -rf /usr/share/wallpapers/Fresh_Morning
@@ -84,6 +87,7 @@ rm -rf /usr/share/wallpapers/Plasmalicious
 rm -rf /usr/share/wallpapers/Quadros
 rm -rf /usr/share/wallpapers/C*
 rm -rf /usr/share/wallpapers/A*
+rm -rf /usr/share/wallpapers/Path
 rm -rf /usr/share/wallpapers/Red_Leaf
 rm -rf /usr/share/wallpapers/openSU*
 rm -rf /usr/share/wallpapers/Pr*
@@ -98,18 +102,19 @@ rm  -f /usr/share/autostart/kaddressbookmigrator.desktop
 rm -rf /usr/lib64/kde4/activitymanager_plugin_nepomuk.so
 rm -rf /usr/lib64/kde4/nepom*
 rm -rf /usr/lib64/libclang*.a
-rm -rf /usr/lib64/libllvm*.a
+rm -rf /usr/lib64/libLLVM*.a
 rm -rf /usr/lib/libclang*.a
-rm -rf /usr/lib/libllvm*.a
+rm -rf /usr/lib/libLLVM*.a
+rm -rf /usr/lib64/clang
 rm -rf /usr/lib/kde4/krunner_nep*
 rm -rf /usr/share/kde4/services/activitymanager-plugin-nepomukcontroller*
 rm -rf /usr/share/kde4/services/nepo*
 rm -rf /usr/share/kde4/services/plasma-runner-nepomuksearch*
 rm -rf /usr/share/applications/kde4/nepo*
 chown -hR gog:users /home/gog
-rm -f /etc/systemd/system/multi-user.target.wants/cron.service
-rm -f /etc/systemd/system/multi-user.target.wants/postfix.service
-rm -f /etc/systemd/system/multi-user.target.wants/purge-kernels.service
+#rm -f /etc/systemd/system/multi-user.target.wants/cron.service
+#rm -f /etc/systemd/system/multi-user.target.wants/postfix.service
+#rm -f /etc/systemd/system/multi-user.target.wants/purge-kernels.service
 ln -s /etc/systemd/system/suse-studio-custom.service /etc/systemd/system/multi-user.target.wants/suse-studio-custom.service
 #rpm -qa | grep yast | xargs rpm -e --nodeps
 rm -rf /gog
@@ -136,11 +141,47 @@ ln -s /usr/lib/libbz2.so.1 /usr/lib/libbz2.so.1.0
 ln -s /usr/lib64/libbz2.so.1 /usr/lib64/libbz2.so.1.0
 ln -s /sbin/lspci /bin/lspci
 baseSetRunlevel 5
-baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER sddm
+ln -s /usr/lib/systemd/system/runlevel5.target /etc/systemd/system/default.target
+baseUpdateSysConfig /etc/sysconfig/keyboard KEYTABLE us.map.gz
+baseUpdateSysConfig /etc/sysconfig/keyboard YAST_KEYBOARD "english-us,pc104"
+baseUpdateSysConfig /etc/sysconfig/keyboard COMPOSETABLE "clear latin1.add"
+
+baseUpdateSysConfig /etc/sysconfig/language RC_LANG "en_US.UTF-8"
 baseUpdateSysConfig /etc/sysconfig/network/config NETWORKMANAGER yes
-baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER_AUTOLOGIN gog
+#baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER_AUTOLOGIN gog
 baseUpdateSysConfig /etc/sysconfig/network/config FEREWALL no
 baseUpdateSysConfig /etc/sysconfig/sound PULSEAUDIO_ENABLE yes
+baseUpdateSysConfig /etc/sysconfig/console CONSOLE_FONT "lat9w-16.psfu"
+baseUpdateSysConfig /etc/sysconfig/console CONSOLE_SCREENMAP trivial
+baseUpdateSysConfig /etc/sysconfig/console CONSOLE_MAGIC "(K"
+baseUpdateSysConfig /etc/sysconfig/console CONSOLE_ENCODING "UTF-8"
+# bug 891183 yast2 live-installer --gtk segfaults
+baseUpdateSysConfig /etc/sysconfig/yast2 WANTED_GUI qt
+baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER sddm
+baseUpdateSysConfig /etc/sysconfig/windowmanager DEFAULT_WM plasma5
+echo "Storage=volatile" >> /etc/systemd/journald.conf
+rm /etc/systemd/system/default.target.wants/YaST2-Firstboot.service
+rm /etc/systemd/system/default.target.wants/YaST2-Second-Stage.service
+rm /usr/lib/systemd/system/YaST2-Second-Stage.service
+rm /usr/lib/systemd/system/YaST2-Firstboot.service
+sed -i -e 's,^\(.*pam_gnome_keyring.so.*\),#\1,'  /etc/pam.d/common-auth-pc
+# bug 876555, remove this once the package is updated
+ln -s /usr/share/YaST2/theme/openSUSE /usr/share/YaST2/theme/current
+
+for i in langset NetworkManager; do
+	systemctl -f enable $i
+done
+
+ln -s /usr/lib/systemd/system/langset.service /usr/lib/systemd/system/sysinit.target.wants/langset.service
+
+for i in sshd cron wicked purge-kernels; do
+	systemctl -f disable $i
+done
+
+echo "[Autologin]" >> /etc/sddm.conf
+echo "User=gog" >> /etc/sddm.conf
+echo "Session=plasma5.desktop" >> /etc/sddm.conf
+
 suseConfig
 usermod -a -G wheel gog
 usermod -a -G video gog

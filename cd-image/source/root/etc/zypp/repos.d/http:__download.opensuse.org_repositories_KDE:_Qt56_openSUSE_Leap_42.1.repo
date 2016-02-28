@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_repositories_KDE:_Qt56_openSUSE_Leap_42.1]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/KDE:/Qt56/openSUSE_Leap_42.1/
+type=rpm-md
+priority=30
+keeppackages=1

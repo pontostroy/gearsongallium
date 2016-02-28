@@ -31,7 +31,7 @@ DISPLAYMANAGER_KDM_LOCALARGS=""
 # Define the theme to be used by kdm. If empty, the traditional login
 # window is used (which lacks some features)
 # 
-DISPLAYMANAGER_KDM_THEME="oxygen-air"
+DISPLAYMANAGER_KDM_THEME=""
 
 ## Type:	yesno
 ## Default:	yes
@@ -51,7 +51,7 @@ DISPLAYMANAGER_ROOT_LOGIN_LOCAL="yes"
 # Here you can set the default Display manager (kdm/xdm/gdm/wdm/entrance/console).
 # all changes in this file require a restart of the displaymanager
 #
-DISPLAYMANAGER="kdm4"
+DISPLAYMANAGER="ssdm"
 
 ## Type:	yesno
 ## Default:	no

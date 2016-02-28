@@ -1,5 +1,9 @@
 [PlasmaViews][Panel 1][Horizontal1920]
+length=1124
 thickness=35
 
 [PlasmaViews][Panel 17][Horizontal1920]
 thickness=35
+
+[Updates]
+performed=/usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/obsolete_kickoffrc.js
