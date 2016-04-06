@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="std" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.02.26</version>
+                <version>16.04.06</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -94,7 +94,6 @@
                 <package name="glibc-locale"/>
                 <package name="syslogd"/>
                 <package name="yast2-live-installer"/>
-		<package name="plasma-pa"/>
                 <package name="plasma-nm5"/>
                 <package name="plasma-nm5-pptp"/>
 		<package name="plasma-nm5-ssh"/>
@@ -373,6 +372,8 @@
                 <package name="libKF5KDcraw5"/>
 		<package name="xdriinfo"/>
 		<package name="driconf"/>
+		<package name="clinfo"/>
+		<package name="clpeak"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
@@ -469,5 +470,8 @@
         </repository>
         <repository type="rpm-md" priority="25" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Leap_42.1/"/>
+        </repository>
+	        <repository type="rpm-md" priority="85" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/mnhauke:/opencl:/testing/openSUSE_Leap_42.1/"/>
         </repository>
 </image>
