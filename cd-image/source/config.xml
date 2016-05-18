@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="std" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.04.06</version>
+                <version>16.05.18</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -78,7 +78,7 @@
                 <package name="upower"/>
                 <package name="smplayer"/>
                 <package name="chromium-beta"/>
-		<!--<package name="chromium-beta-ffmpeg"/> -->
+		<package name="chromium-beta-ffmpeg"/> 
                 <package name="clementine"/>
                 <package name="baloo-file"/>
 		<package name="bzip2"/>
@@ -87,7 +87,7 @@
                 <package name="android-tools"/>
                 <package name="pptp"/>
                 <package name="apitrace"/>
-		<package name="gstreamer-plugins-bad-orig-addon"/>
+<!--		<package name="gstreamer-plugins-bad-orig-addon"/>-->
 		<package name="xhost"/>                
 		<package name="xcompmgr"/>
                 <package name="gstreamer-utils"/>
@@ -374,6 +374,10 @@
 		<package name="driconf"/>
 		<package name="clinfo"/>
 		<package name="clpeak"/>
+		<package name="Mesa-libvulkan_intel"/>
+		<package name="vulkan"/>
+		<package name="libvulkan1"/>
+		<package name="xorg-x11-server-wayland"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
@@ -429,9 +433,12 @@
         <repository type="yast2"  imageinclude="false"  >
                 <source path="http://download.opensuse.org/distribution/leap/42.1/repo/non-oss/"/>
         </repository>
-        <repository type="rpm-md" priority="30" imageinclude="false"  >
+        <repository type="rpm-md" priority="10" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/"/>
         </repository>
+	<repository type="rpm-md" priority="10" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.1/"/>
+        </repository>       
         <repository type="rpm-md" priority="30" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/KDE:/Qt56/openSUSE_Leap_42.1/"/>
         </repository>       
@@ -447,7 +454,10 @@
         <repository type="rpm-md" priority="15" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Leap_42.1/"/>
         </repository>
-        <repository type="rpm-md" imageinclude="false"  >
+	        <repository type="rpm-md" priority="10" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/tmp/home_pontostroy_X11_openSUSE_Leap_42.1/"/>
+        </repository>
+        <repository type="rpm-md" imageinclude="false" priority="20"  >
                 <source path="http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Leap_42.1/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
@@ -468,7 +478,7 @@
 	<repository type="rpm-md" priority="110" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/seife:/testing/openSUSE_Leap_42.1/"/>
         </repository>
-        <repository type="rpm-md" priority="25" imageinclude="false"  >
+        <repository type="rpm-md" priority="30" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Leap_42.1/"/>
         </repository>
 	        <repository type="rpm-md" priority="85" imageinclude="false"  >
