@@ -1,3 +1,4 @@
 /image*
 /dist*
-/cd-image/source/root/opt
+/cd-image/source/root/opt*
+/cd-image/source/root/usr/local/lib64*
