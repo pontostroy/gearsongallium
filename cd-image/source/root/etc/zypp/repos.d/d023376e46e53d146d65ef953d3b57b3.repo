@@ -1,0 +1,6 @@
+[d023376e46e53d146d65ef953d3b57b3]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/distribution/leap/42.1/repo/oss/
+type=yast2
+keeppackages=1

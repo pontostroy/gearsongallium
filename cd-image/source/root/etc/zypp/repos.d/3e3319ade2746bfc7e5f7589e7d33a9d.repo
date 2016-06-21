@@ -1,0 +1,6 @@
+[3e3319ade2746bfc7e5f7589e7d33a9d]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/games:/tools/openSUSE_Leap_42.1/
+type=rpm-md
+keeppackages=1

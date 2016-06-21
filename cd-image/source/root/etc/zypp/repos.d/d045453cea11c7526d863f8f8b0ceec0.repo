@@ -1,0 +1,7 @@
+[d045453cea11c7526d863f8f8b0ceec0]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.1/
+type=rpm-md
+priority=10
+keeppackages=1

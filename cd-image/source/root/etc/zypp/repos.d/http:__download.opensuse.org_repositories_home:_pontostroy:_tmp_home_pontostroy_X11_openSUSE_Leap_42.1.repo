@@ -1,7 +1,0 @@
-[http:__download.opensuse.org_repositories_home:_pontostroy:_tmp_home_pontostroy_X11_openSUSE_Leap_42.1]
-enabled=1
-autorefresh=1
-baseurl=http://download.opensuse.org/repositories/home:/pontostroy:/tmp/home_pontostroy_X11_openSUSE_Leap_42.1/
-type=rpm-md
-priority=10
-keeppackages=1

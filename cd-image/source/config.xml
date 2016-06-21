@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="std" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.05.18</version>
+                <version>16.06.21</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -45,6 +45,7 @@
 		<package name="SuSEfirewall2"/>
 		<package name="yast2-sound"/>
 		<package name="kwayland-integration"/>
+		<package name="kwayland"/>
 		<package name="libqt5-qtwayland"/>
 		<package name="vaapi-wayland-tools"/>
                 <package name="chromium-pepper-flash"/>
@@ -374,10 +375,11 @@
 		<package name="driconf"/>
 		<package name="clinfo"/>
 		<package name="clpeak"/>
-		<package name="Mesa-libvulkan_intel"/>
+		<package name="libvulkan_intel"/>
 		<package name="vulkan"/>
 		<package name="libvulkan1"/>
 		<package name="xorg-x11-server-wayland"/>
+		<package name="libvirglrenderer0"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
@@ -393,7 +395,7 @@
 		<package name="alsa-plugins-pulse-32bit"/>
 		<package name="libSDL-1_2-0-32bit"/>
 		<package name="libSDL2-2_0-0-32bit"/>
-		<package name="libSDL2_gfx-1_0-0-32bit "/>
+		<package name="libSDL2_gfx-1_0-0-32bit"/>
 		<package name="libSDL2_image-2_0-0-32bit"/>
 		<package name="libSDL2_mixer-2_0-0-32bit"/>
 		<package name="libSDL2_ttf-devel-32bit"/>
@@ -438,9 +440,12 @@
         </repository>
 	<repository type="rpm-md" priority="10" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.1/"/>
-        </repository>       
+        </repository>
+	<repository type="rpm-md" priority="9" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/home:/pontostroy:/X11/openSUSE_Leap_42.1/"/>
+        </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Qt56/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Qt57/openSUSE_Leap_42.1/"/>
         </repository>       
         <repository type="rpm-md" priority="30" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.1/"/>
@@ -453,10 +458,7 @@
         </repository>
         <repository type="rpm-md" priority="15" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Leap_42.1/"/>
-        </repository>
-	        <repository type="rpm-md" priority="10" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/tmp/home_pontostroy_X11_openSUSE_Leap_42.1/"/>
-        </repository>
+	</repository>
         <repository type="rpm-md" imageinclude="false" priority="20"  >
                 <source path="http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Leap_42.1/"/>
         </repository>

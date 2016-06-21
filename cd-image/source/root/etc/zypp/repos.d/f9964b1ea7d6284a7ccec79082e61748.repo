@@ -1,0 +1,7 @@
+[f9964b1ea7d6284a7ccec79082e61748]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Leap_42.1/
+type=rpm-md
+priority=30
+keeppackages=1

@@ -1,0 +1,7 @@
+[db4ea06a1cb366a24b865f466892b6d0]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/
+type=rpm-md
+priority=10
+keeppackages=1

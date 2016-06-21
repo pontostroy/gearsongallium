@@ -1,0 +1,7 @@
+[fcbac7c5425c7950c66607cc15beee59]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/KDE:/Qt57/openSUSE_Leap_42.1/
+type=rpm-md
+priority=30
+keeppackages=1

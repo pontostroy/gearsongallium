@@ -1,0 +1,6 @@
+[be6044ef5a28906338ef603f5a3f47fa]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/distribution/leap/42.1/repo/non-oss/
+type=yast2
+keeppackages=1
