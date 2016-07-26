@@ -1,4 +1,4 @@
-[fcbac7c5425c7950c66607cc15beee59]
+[http:__download.opensuse.org_repositories_KDE:_Qt57_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/KDE:/Qt57/openSUSE_Leap_42.1/

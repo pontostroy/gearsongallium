@@ -1,4 +1,4 @@
-[b9eb304a56e48cebf889ee2398360cd3]
+[http:__download.opensuse.org_repositories_home:_pontostroy:_X11_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Leap_42.1/

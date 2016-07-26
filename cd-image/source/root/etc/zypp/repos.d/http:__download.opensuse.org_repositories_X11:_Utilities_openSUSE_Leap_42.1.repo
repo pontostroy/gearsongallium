@@ -1,4 +1,4 @@
-[1cb8bb27b5b5088e9ddc94205df08ad0]
+[http:__download.opensuse.org_repositories_X11:_Utilities_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Leap_42.1/

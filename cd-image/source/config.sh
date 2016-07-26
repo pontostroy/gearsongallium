@@ -133,6 +133,7 @@ rm -rf /usr/share/ghostscript*
 rm -rf /usr/share/sounds/
 rm -rf /usr/share/autostart/SUSEgreeter.desktop
 rm -rf /usr/share/autostart/krunner.desktop
+rm -rf /etc/ld.so.conf.d/libglvnd.conf
 ln -s /usr/lib64/libGLEW.so.1.13 /usr/lib64/libGLEW.so.1.5
 ln -s /usr/lib/libGLEW.so.1.13 /usr/lib/libGLEW.so.1.5
 ln -s /usr/lib/libudev.so.1.4.0 /usr/lib/libudev.so.0

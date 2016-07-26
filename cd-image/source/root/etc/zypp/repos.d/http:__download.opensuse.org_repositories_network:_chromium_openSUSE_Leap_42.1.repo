@@ -1,4 +1,4 @@
-[ccdf76de59f3419984526ac0e08091c8]
+[http:__download.opensuse.org_repositories_network:_chromium_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/network:/chromium/openSUSE_Leap_42.1/

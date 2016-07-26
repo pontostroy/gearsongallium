@@ -7,8 +7,8 @@
                 <specification>Gears_on_Gallium</specification>
         </description>
         <preferences>
-                <type flags="overlay" hybrid="true" bootkernel="std" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.06.21</version>
+                <type flags="overlay" hybrid="true" bootkernel="default" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
+                <version>16.07.25</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -59,6 +59,7 @@
                 <package name="yast2-users"/>
                 <package name="valgrind"/>
                 <package name="gwenview5"/>
+                <package name="spectacle"/>
                 <package name="phonon-backend-gstreamer"/>
                 <package name="gstreamer"/>
                 <package name="gstreamer-plugins-base"/>
@@ -69,7 +70,7 @@
                 <package name="xf86-video-ati"/>
                 <package name="xf86-video-intel"/>
                 <package name="xf86-video-amdgpu"/>
-                <package name="xf86-video-qxl"/>
+		<!-- <package name="xf86-video-qxl"/> -->
                 <package name="xf86-video-nouveau"/>
                 <package name="okular"/>
                 <package name="polkit-default-privs"/>
@@ -130,7 +131,7 @@
                 <package name="libfreeimageplus3"/>
                 <package name="xf86-input-evdev"/>
                 <package name="xf86-input-keyboard"/>
-                <package name="xf86-input-joystick"/>
+		<!-- <package name="xf86-input-joystick"/>-->
                 <package name="xf86-input-mouse"/>
 		<package name="xf86-input-libinput"/>
                 <package name="xf86-input-wacom"/>
@@ -306,7 +307,7 @@
 		<package name="scrot"/>
 		<package name="qps"/>
 		<package name="wmctrl"/>
-                <package name="Mesa-libOpenCL"/> 
+		<package name="Mesa-libOpenCL"/>
 		<package name="ocl-icd-devel"/>
                 <package name="libOpenCL1"/>
                 <package name="libclc-devel"/>
@@ -435,9 +436,12 @@
         <repository type="yast2"  imageinclude="false"  >
                 <source path="http://download.opensuse.org/distribution/leap/42.1/repo/non-oss/"/>
         </repository>
-        <repository type="rpm-md" priority="10" imageinclude="false"  >
+        <repository type="rpm-md" priority="90" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/"/>
         </repository>
+	<!--<repository type="rpm-md" priority="5" imageinclude="false"  >
+	<source path="/var/tmp/build-root/openSUSE_Leap_42.1-x86_64/.build.packages/RPMS"/>
+	</repository>-->
 	<repository type="rpm-md" priority="10" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.1/"/>
         </repository>

@@ -1,4 +1,4 @@
-[3e3319ade2746bfc7e5f7589e7d33a9d]
+[http:__download.opensuse.org_repositories_games:_tools_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/games:/tools/openSUSE_Leap_42.1/

@@ -1,4 +1,4 @@
-[5019d583568e4f57f7e4faf2deeeceec]
+[http:__download.opensuse.org_repositories_KDE:_Unstable:_Frameworks_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.1/

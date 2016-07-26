@@ -1,4 +1,4 @@
-[e7b9e39387eabc806f7fd36c3b36c8e4]
+[http:__download.opensuse.org_repositories_KDE:_Unstable:_Extra_KDE_Unstable_Extra_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/KDE:/Unstable:/Extra/KDE_Unstable_Extra_openSUSE_Leap_42.1/

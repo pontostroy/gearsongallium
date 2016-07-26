@@ -1,4 +1,4 @@
-[5bb3819351a9ef0ff63ccfbfbd2f91d8]
+[http:__download.opensuse.org_repositories_home:_mnhauke:_opencl:_testing_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/home:/mnhauke:/opencl:/testing/openSUSE_Leap_42.1/

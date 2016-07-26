@@ -1,4 +1,4 @@
-[28e7b10bf4a04a68ecf3642ac70194b0]
+[http:__download.opensuse.org_repositories_home:_seife:_testing_openSUSE_Leap_42.1]
 enabled=1
 autorefresh=1
 baseurl=http://download.opensuse.org/repositories/home:/seife:/testing/openSUSE_Leap_42.1/
