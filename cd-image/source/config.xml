@@ -7,8 +7,8 @@
                 <specification>Gears_on_Gallium</specification>
         </description>
         <preferences>
-                <type flags="overlay" hybrid="true" bootkernel="default" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.07.25</version>
+                <type flags="overlay" hybrid="true" bootkernel="vanilla" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="vanilla" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
+                <version>16.08.24</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -65,7 +65,7 @@
                 <package name="gstreamer-plugins-base"/>
                 <package name="kernel-firmware"/>
                 <package name="alsa-utils"/>
-                <package name="kernel-default"/>
+                <package name="kernel-vanilla"/>
 		<package name="libXtst6"/>
                 <package name="xf86-video-ati"/>
                 <package name="xf86-video-intel"/>
@@ -191,7 +191,7 @@
                 <package name="ffmpeg"/>
                 <package name="krdc"/>
                 <package name="dosfstools"/>
-                <package name="ksnapshot"/>
+                <package name="spectacle"/>
                 <package name="update-desktop-files"/>
                 <package name="kdedesktopcheck"/>
                 <package name="gdb"/>
@@ -439,9 +439,9 @@
         <repository type="rpm-md" priority="90" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/"/>
         </repository>
-	<!--<repository type="rpm-md" priority="5" imageinclude="false"  >
+	<repository type="rpm-md" priority="5" imageinclude="false"  >
 	<source path="/var/tmp/build-root/openSUSE_Leap_42.1-x86_64/.build.packages/RPMS"/>
-	</repository>-->
+	</repository>
 	<repository type="rpm-md" priority="10" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.1/"/>
         </repository>
