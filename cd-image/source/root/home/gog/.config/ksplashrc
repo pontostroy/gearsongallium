@@ -1,3 +1,3 @@
 [KSplash]
-Engine=KSplashQML
-Theme=org.openSUSE.desktop
+Engine=none
+Theme=None

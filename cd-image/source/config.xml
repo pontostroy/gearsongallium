@@ -7,8 +7,8 @@
                 <specification>Gears_on_Gallium</specification>
         </description>
         <preferences>
-                <type flags="overlay" hybrid="true" bootkernel="vanilla" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="vanilla" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.08.24</version>
+                <type flags="overlay" hybrid="true" bootkernel="default" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
+                <version>16.11.13</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -28,7 +28,6 @@
         <packages patternType="onlyRequired" type="image">
                 <package name="plymouth-branding-openSUSE" bootinclude="true" bootdelete="true"/>
                 <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
-		<package name="plasma5-desktop-branding-upstream"/>
                 <package name="yast2-control-center"/>
                 <package name="yast2-storage"/>
                 <package name="yast2-control-center-qt"/>
@@ -49,7 +48,6 @@
 		<package name="libqt5-qtwayland"/>
 		<package name="vaapi-wayland-tools"/>
                 <package name="chromium-pepper-flash"/>
-		<package name="chromium-beta-desktop-kde"/>
                 <package name="yast2-sysconfig"/>
                 <package name="yast2-qt-branding-openSUSE"/>
                 <package name="yast2-branding-openSUSE"/>
@@ -57,7 +55,6 @@
                 <package name="libyui-ncurses-pkg7"/>
                 <package name="yast2-sudo"/>
                 <package name="yast2-users"/>
-                <package name="valgrind"/>
                 <package name="gwenview5"/>
                 <package name="spectacle"/>
                 <package name="phonon-backend-gstreamer"/>
@@ -65,7 +62,7 @@
                 <package name="gstreamer-plugins-base"/>
                 <package name="kernel-firmware"/>
                 <package name="alsa-utils"/>
-                <package name="kernel-vanilla"/>
+                <package name="kernel-default"/>
 		<package name="libXtst6"/>
                 <package name="xf86-video-ati"/>
                 <package name="xf86-video-intel"/>
@@ -79,8 +76,8 @@
                 <package name="libupower-glib3"/>
                 <package name="upower"/>
                 <package name="smplayer"/>
-                <package name="chromium-beta"/>
-		<package name="chromium-beta-ffmpeg"/> 
+                <package name="chromium"/>
+		<package name="chromium-ffmpeg"/> 
                 <package name="clementine"/>
                 <package name="baloo-file"/>
 		<package name="bzip2"/>
@@ -119,7 +116,7 @@
                 <package name="aaa_base"/>
                 <package name="wine"/>
                 <package name="xdg-menu"/>
-                <package name="sddm-branding-openSUSE"/>
+                <package name="sddm-branding-upstream"/>
                 <package name="kdeclarative-components"/>
                 <package name="sddm"/>
                 <package name="gawk"/>
@@ -324,8 +321,6 @@
                 <package name="libacl-devel"/>
                 <package name="lzo-devel"/>
                 <package name="gst-omx"/>
-                <package name="libgstvaapi1-1_4-1"/>
-                <package name="libgstvaapi-x11-1_4-1"/>
                 <package name="libomxil-bellagio"/>
                 <package name="libomx_mesa"/>
                 <package name="gstreamer-plugins-bad"/>
@@ -370,17 +365,30 @@
 		<package name="ucode-intel"/>
 		<package name="weston"/>
                 <package name="libSM6"/>
-		<package name="libva_mesa"/>
+		<package name="Mesa-libva"/>
                 <package name="libKF5KDcraw5"/>
 		<package name="xdriinfo"/>
 		<package name="driconf"/>
 		<package name="clinfo"/>
 		<package name="clpeak"/>
 		<package name="libvulkan_intel"/>
+		<package name="libvulkan_radeon"/>
 		<package name="vulkan"/>
 		<package name="libvulkan1"/>
 		<package name="xorg-x11-server-wayland"/>
 		<package name="libvirglrenderer0"/>
+        <package name="simplescreenrecorder"/>
+        <package name="obs-studio"/>
+        <package name="libopusfile0"/>
+        <package name="libmikmod3"/>
+        <package name="libSDL2-2_0-0"/>
+        <package name="libSDL2_image-2_0-0"/>
+        <package name="libSDL2_mixer-2_0-0"/>
+        <package name="libSDL2_ttf-2_0-0"/>
+        <package name="libXss1"/>
+        <package name="libvorbis0"/>
+        <package name="libassimp3"/>
+        <package name="gwenhywfar-tools"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
@@ -408,6 +416,7 @@
 		<package name="libSDL_ttf-2_0-0-32bit"/>
 		<package name="libSDLmm-0_1-8-32bit"/>
 		<package name="libICE6-32bit"/>
+        <package name="libXss1-32bit"/>
 		<package name="libSM6-32bit"/>
 		<package name="libtxc_dxtn-32bit"/>
         	<package name="libgcrypt11-32bit"/>
@@ -419,7 +428,7 @@
                 <package name="libtls9-32bit"/>
 		<package name="libGLEW1_13-32bit"/>
                 <package name="cups-libs-32bit"/>
-		<package name="libva_mesa-32bit"/>
+		<package name="Mesa-libva-32bit"/>
         </packages>
         <packages type="bootstrap">
                 <package name="glibc-locale"/>
@@ -439,9 +448,6 @@
         <repository type="rpm-md" priority="90" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/"/>
         </repository>
-	<repository type="rpm-md" priority="5" imageinclude="false"  >
-	<source path="/var/tmp/build-root/openSUSE_Leap_42.1-x86_64/.build.packages/RPMS"/>
-	</repository>
 	<repository type="rpm-md" priority="10" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.1/"/>
         </repository>

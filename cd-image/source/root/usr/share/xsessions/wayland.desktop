@@ -1,0 +1,9 @@
+[Desktop Entry]
+X-SuSE-translate=true
+Encoding=UTF-8
+Type=XSession
+Exec=/usr/bin/dbus-launch /usr/bin/startplasmacompositor
+TryExec=/usr/bin/startplasmacompositor
+DesktopNames=wayland-kde
+Name=waylan-kde
+Comment=Plasma wayland

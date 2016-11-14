@@ -44,7 +44,6 @@ baseStripMans
 
 sed --in-place -e 's/# solver.onlyRequires.*/solver.onlyRequires = true/' /etc/zypp/zypp.conf
 
-suseRemoveService sshd
 suseRemoveService purge-kernels
 suseRemoveService postfix
 chkconfig sshd off
@@ -146,7 +145,6 @@ ln -s /usr/lib/systemd/system/runlevel5.target /etc/systemd/system/default.targe
 baseUpdateSysConfig /etc/sysconfig/keyboard KEYTABLE us.map.gz
 baseUpdateSysConfig /etc/sysconfig/keyboard YAST_KEYBOARD "english-us,pc104"
 baseUpdateSysConfig /etc/sysconfig/keyboard COMPOSETABLE "clear latin1.add"
-
 baseUpdateSysConfig /etc/sysconfig/language RC_LANG "en_US.UTF-8"
 baseUpdateSysConfig /etc/sysconfig/network/config NETWORKMANAGER yes
 #baseUpdateSysConfig /etc/sysconfig/displaymanager DISPLAYMANAGER_AUTOLOGIN gog
@@ -175,13 +173,14 @@ done
 
 ln -s /usr/lib/systemd/system/langset.service /usr/lib/systemd/system/sysinit.target.wants/langset.service
 
-for i in sshd cron wicked purge-kernels; do
+for i in cron wicked purge-kernels; do
 	systemctl -f disable $i
 done
 
-echo "[Autologin]" >> /etc/sddm.conf
-echo "User=gog" >> /etc/sddm.conf
-echo "Session=plasma5.desktop" >> /etc/sddm.conf
+# echo "[Autologin]" >> /etc/sddm.conf
+# echo "User=gog" >> /etc/sddm.conf
+# echo "Session=plasma5.desktop" >> /etc/sddm.conf
+ln -s /usr/share/gwenhywfar/ca-bundle.crt  /etc/ssl/certs/ca-certificates.crt
 
 suseConfig
 usermod -a -G wheel gog
