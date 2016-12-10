@@ -1,0 +1,7 @@
+[http:__ftp.uni-erlangen.de_pub_mirrors_packman_suse_openSUSE_Leap_42.2]
+enabled=1
+autorefresh=1
+baseurl=http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Leap_42.2/
+type=rpm-md
+priority=20
+keeppackages=1

@@ -1,6 +1,0 @@
-[http:__download.opensuse.org_distribution_leap_42.1_repo_non-oss]
-enabled=1
-autorefresh=1
-baseurl=http://download.opensuse.org/distribution/leap/42.1/repo/non-oss/
-type=yast2
-keeppackages=1

@@ -24,8 +24,5 @@
 
 #enable_network_manager_if_required
 
-
-
-/etc/init.d/network restart
 udevadm control --reload-rules
 udevadm trigger

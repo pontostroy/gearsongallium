@@ -8,7 +8,7 @@
         </description>
         <preferences>
                 <type flags="overlay" hybrid="true" bootkernel="default" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.11.13</version>
+                <version>16.12.10</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -30,16 +30,24 @@
                 <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
                 <package name="yast2-control-center"/>
                 <package name="yast2-storage"/>
+                 <package name="autoyast2"/>
+                  <package name="yast2-x11"/>
+                  <package name="lsb"/>
+                  <package name="lsb5"/>
+                  <package name="yast2-product-creator"/>
                 <package name="yast2-control-center-qt"/>
                 <package name="libstdc++6"/>
+                <package name="syslinux"/>
+                <package name="openSUSE-release"/>
+                <package name="openSUSE-release-ftp"/>
                 <package name="ca-certificates-cacert"/>
                 <package name="ca-certificates-mozilla"/>
-                <package name="libcrypto36"/>
+                <package name="libcrypto38"/>
 		<package name="ConsoleKit"/>
 		<package name="ConsoleKit-x11"/>
-                <package name="libssl37"/>
+                <package name="libssl39"/>
 		<package name="otter-browser"/>
-                <package name="libtls9"/>
+                <package name="libtls11"/>
                 <package name="yast2-network"/>
 		<package name="SuSEfirewall2"/>
 		<package name="yast2-sound"/>
@@ -69,20 +77,20 @@
                 <package name="xf86-video-amdgpu"/>
 		<!-- <package name="xf86-video-qxl"/> -->
                 <package name="xf86-video-nouveau"/>
-                <package name="okular"/>
+              <!--  <package name="okular"/>-->
                 <package name="polkit-default-privs"/>
                 <package name="polkit-kde-agent-1"/>
                 <package name="polkit-gnome"/>
                 <package name="libupower-glib3"/>
                 <package name="upower"/>
                 <package name="smplayer"/>
-                <package name="chromium"/>
+                <package name="chromium-54.0.2840.90"/>
 		<package name="chromium-ffmpeg"/> 
                 <package name="clementine"/>
-                <package name="baloo-file"/>
+               <!-- <package name="baloo-file"/>-->
 		<package name="bzip2"/>
                 <package name="bluez"/>
-                <package name="bluedevil"/>
+               <!-- <package name="bluedevil"/>-->
                 <package name="android-tools"/>
                 <package name="pptp"/>
                 <package name="apitrace"/>
@@ -128,7 +136,7 @@
                 <package name="libfreeimageplus3"/>
                 <package name="xf86-input-evdev"/>
                 <package name="xf86-input-keyboard"/>
-		<!-- <package name="xf86-input-joystick"/>-->
+		 <package name="xf86-input-joystick"/>
                 <package name="xf86-input-mouse"/>
 		<package name="xf86-input-libinput"/>
                 <package name="xf86-input-wacom"/>
@@ -370,7 +378,7 @@
 		<package name="xdriinfo"/>
 		<package name="driconf"/>
 		<package name="clinfo"/>
-		<package name="clpeak"/>
+		<!--<package name="clpeak"/>-->
 		<package name="libvulkan_intel"/>
 		<package name="libvulkan_radeon"/>
 		<package name="vulkan"/>
@@ -423,9 +431,9 @@
 		<package name="libXtst6-32bit"/>
 		<package name="gconf2-32bit"/>
 		<package name="libgphoto2-6-32bit"/>
-                <package name="libcrypto36-32bit"/>
-                <package name="libssl37-32bit"/>
-                <package name="libtls9-32bit"/>
+                <package name="libcrypto38-32bit"/>
+                <package name="libssl39-32bit"/>
+                <package name="libtls11-32bit"/>
 		<package name="libGLEW1_13-32bit"/>
                 <package name="cups-libs-32bit"/>
 		<package name="Mesa-libva-32bit"/>
@@ -440,60 +448,63 @@
                 <package name="libstdc++6"/>
         </packages>
         <repository type="yast2"  imageinclude="false" >
-                <source path="http://download.opensuse.org/distribution/leap/42.1/repo/oss/"/>
+                <source path="http://download.opensuse.org/distribution/leap/42.2/repo/oss/"/>
         </repository>
         <repository type="yast2"  imageinclude="false"  >
-                <source path="http://download.opensuse.org/distribution/leap/42.1/repo/non-oss/"/>
+                <source path="http://download.opensuse.org/distribution/leap/42.2/repo/non-oss/"/>
         </repository>
         <repository type="rpm-md" priority="90" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/security/openSUSE_Leap_42.2/"/>
+        </repository>
+        <repository type="rpm-md" priority="90" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.2/"/>
         </repository>
 	<repository type="rpm-md" priority="10" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/gst/openSUSE_Leap_42.2/"/>
         </repository>
 	<repository type="rpm-md" priority="9" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/home:/pontostroy:/X11/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/home:/pontostroy:/X11/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Qt57/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Qt57/openSUSE_Leap_42.2/"/>
         </repository>       
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Extra/KDE_Unstable_Extra_openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Extra/KDE_Unstable_Frameworks_openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Applications/KDE_Unstable_Frameworks_openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Applications/KDE_Unstable_Frameworks_openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" priority="15" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/home:/pontostroy:/X11/openSUSE_Leap_42.2/"/>
 	</repository>
         <repository type="rpm-md" imageinclude="false" priority="20"  >
-                <source path="http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Leap_42.1/"/>
+                <source path="http://ftp.uni-erlangen.de/pub/mirrors/packman/suse/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/games/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/games/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/games:/tools/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/games:/tools/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" priority="55" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/network:/chromium/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/network:/chromium/openSUSE_Leap_42.2/"/>
 	</repository>
 	<repository type="rpm-md" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/X11:/Utilities/openSUSE_Leap_42.2/"/>
         </repository>
 	<repository type="rpm-md" priority="110" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/seife:/testing/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/home:/seife:/testing/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/multimedia:/libs/openSUSE_Leap_42.2/"/>
         </repository>
 	        <repository type="rpm-md" priority="85" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/home:/mnhauke:/opencl:/testing/openSUSE_Leap_42.1/"/>
+                <source path="http://download.opensuse.org/repositories/home:/mnhauke:/opencl:/stable/openSUSE_Leap_42.2/"/>
         </repository>
 </image>

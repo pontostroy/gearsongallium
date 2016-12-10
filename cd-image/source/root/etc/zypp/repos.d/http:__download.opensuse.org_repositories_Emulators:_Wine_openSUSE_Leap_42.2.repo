@@ -1,0 +1,6 @@
+[http:__download.opensuse.org_repositories_Emulators:_Wine_openSUSE_Leap_42.2]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Leap_42.2/
+type=rpm-md
+keeppackages=1

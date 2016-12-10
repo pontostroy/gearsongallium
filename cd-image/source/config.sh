@@ -117,12 +117,12 @@ chown -hR gog:users /home/gog
 ln -s /etc/systemd/system/suse-studio-custom.service /etc/systemd/system/multi-user.target.wants/suse-studio-custom.service
 #rpm -qa | grep yast | xargs rpm -e --nodeps
 rm -rf /gog
-rm -f /var/log/zypper.log
+#rm -f /var/log/zypper.log
 rm -rf /etc/cron.daily/*
 rm -rf /etc/cron.hourly/*
 rm -f /var/log/lastlog
-rm -rf /var/log/zypp/*
-rm -rf /var/log/pbl.log
+#rm -rf /var/log/zypp/*
+#rm -rf /var/log/pbl.log
 rm -f /usr/bin/mencoder
 rm -f /usr/bin/clang*
 rm -f /usr/bin/c-index-test
@@ -140,6 +140,8 @@ ln -s /usr/lib64/libudev.so.1.4.0 /usr/lib64/libudev.so.0
 ln -s /usr/lib/libbz2.so.1 /usr/lib/libbz2.so.1.0
 ln -s /usr/lib64/libbz2.so.1 /usr/lib64/libbz2.so.1.0
 ln -s /sbin/lspci /bin/lspci
+ln -s /usr/lib64/libcurl.so.4 /usr/lib64/libcurl-gnutls.so.4
+ln -s /usr/lib/libcurl.so.4 /usr/lib/libcurl-gnutls.so.4
 baseSetRunlevel 5
 ln -s /usr/lib/systemd/system/runlevel5.target /etc/systemd/system/default.target
 baseUpdateSysConfig /etc/sysconfig/keyboard KEYTABLE us.map.gz
@@ -166,6 +168,13 @@ rm /usr/lib/systemd/system/YaST2-Firstboot.service
 sed -i -e 's,^\(.*pam_gnome_keyring.so.*\),#\1,'  /etc/pam.d/common-auth-pc
 # bug 876555, remove this once the package is updated
 ln -s /usr/share/YaST2/theme/openSUSE /usr/share/YaST2/theme/current
+
+sed -i -e 's,--libinput, ,'  /usr/bin/startplasmacompositor
+
+sed -i -e 's,log.error "No base product found",#log.error "No base product found",'  /usr/share/YaST2/modules/Product.rb
+sed -i -e 's,raise "No base product found",#raise "No base product found",'  /usr/share/YaST2/modules/Product.rb
+
+
 
 for i in langset NetworkManager; do
 	systemctl -f enable $i

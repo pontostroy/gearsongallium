@@ -1,0 +1,29 @@
+--- usr/lib/YaST2/startup/YaST2.call.orig       2011-02-17 14:54:48.000000000 +0000
++++ usr/lib/YaST2/startup/YaST2.call    2011-04-08 08:01:31.000000000 +0000
+@@ -646,7 +646,9 @@
+ # 8) Call YaST2
+ #---------------------------------------------
+ Y2_MODULE_NAME=${1:-installation}; shift
++if test "$Y2_MODULE_NAME" != "live-installer"; then
+ Y2_MODULE_ARGS=\(\"$*\"\)
++fi
+ start_yast
+ 
+ #=============================================
+
+--- etc/init.d/xdm.orig	2011-04-12 10:21:03.911449606 +0200
++++ etc/init.d/xdm	2011-04-12 10:21:43.831694748 +0200
+@@ -211,7 +211,12 @@ case "$1" in
+ 	    fi
+ 	    ;;
+ 	esac
+-	startproc -p $PIDFILE $DISPLAYMANAGER $XDMOPTIONS || rc_failed
++       if cat /proc/cmdline | grep -q liveinstall; then
++            [ -x /usr/bin/plymouth ] && /usr/bin/plymouth quit
++            /usr/lib/YaST2/startup/YaST2.call live-installer
++        else
++           startproc -p $PIDFILE $DISPLAYMANAGER $XDMOPTIONS || rc_failed
++        fi
+ 	# After a crash or a kill signal we may have
+ 	# a wrong ownership of /dev/xconsole
+ 	if rc_status ; then

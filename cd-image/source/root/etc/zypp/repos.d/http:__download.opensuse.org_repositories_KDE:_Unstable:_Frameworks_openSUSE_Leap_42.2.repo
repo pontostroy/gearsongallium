@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_repositories_KDE:_Unstable:_Frameworks_openSUSE_Leap_42.2]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.2/
+type=rpm-md
+priority=30
+keeppackages=1
