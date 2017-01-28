@@ -1,0 +1,7 @@
+[http:__www.gearsongallium.com_download_amdgpu-pro-16.60-379184]
+enabled=1
+autorefresh=1
+baseurl=http://www.gearsongallium.com/download/amdgpu-pro-16.60-379184/
+type=rpm-md
+priority=90
+keeppackages=1

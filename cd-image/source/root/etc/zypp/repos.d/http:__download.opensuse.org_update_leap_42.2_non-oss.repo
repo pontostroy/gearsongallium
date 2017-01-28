@@ -1,0 +1,7 @@
+[http:__download.opensuse.org_update_leap_42.2_non-oss]
+enabled=1
+autorefresh=1
+baseurl=http://download.opensuse.org/update/leap/42.2/non-oss/
+type=rpm-md
+priority=90
+keeppackages=1

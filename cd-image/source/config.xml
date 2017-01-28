@@ -7,8 +7,8 @@
                 <specification>Gears_on_Gallium</specification>
         </description>
         <preferences>
-                <type flags="overlay" hybrid="true" bootkernel="default" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="bios" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
-                <version>16.12.10</version>
+                <type flags="overlay" hybrid="true" bootkernel="default" filesystem="ext4" fsmountoptions="noatime,barrier=0" fsnocheck="true"  checkprebuilt="false" boottimeout="50" bootprofile="std" boot="isoboot/suse-gog" firmware="efi" image="iso" kernelcmdline="kiwinoswapsearch=1 ramdisk_size=983040 enable_mtrr_cleanup mtrr_spare_reg_nr=1"/>
+                <version>17.01.27</version>
                 <packagemanager>zypper</packagemanager>
                 <rpm-check-signatures>false</rpm-check-signatures>
                 <rpm-excludedocs>true</rpm-excludedocs>
@@ -55,7 +55,7 @@
 		<package name="kwayland"/>
 		<package name="libqt5-qtwayland"/>
 		<package name="vaapi-wayland-tools"/>
-                <package name="chromium-pepper-flash"/>
+                <package name="flash-player-ppapi"/>
                 <package name="yast2-sysconfig"/>
                 <package name="yast2-qt-branding-openSUSE"/>
                 <package name="yast2-branding-openSUSE"/>
@@ -75,7 +75,7 @@
                 <package name="xf86-video-ati"/>
                 <package name="xf86-video-intel"/>
                 <package name="xf86-video-amdgpu"/>
-		<!-- <package name="xf86-video-qxl"/> -->
+		 <package name="xf86-video-qxl"/> 
                 <package name="xf86-video-nouveau"/>
               <!--  <package name="okular"/>-->
                 <package name="polkit-default-privs"/>
@@ -84,8 +84,8 @@
                 <package name="libupower-glib3"/>
                 <package name="upower"/>
                 <package name="smplayer"/>
-                <package name="chromium-54.0.2840.90"/>
-		<package name="chromium-ffmpeg"/> 
+                <package name="chromium-beta"/>
+		<!--<package name="chromium-ffmpeg"/> -->
                 <package name="clementine"/>
                <!-- <package name="baloo-file"/>-->
 		<package name="bzip2"/>
@@ -309,6 +309,9 @@
                 <package name="libjansson-devel"/>
                 <package name="llvm-r600-clang"/>
                 <package name="ncurses-devel"/>
+                <package name="libglfw3"/>
+                <package name="libglfw2"/>
+                <package name="librtmp1"/>
 		<package name="scrot"/>
 		<package name="qps"/>
 		<package name="wmctrl"/>
@@ -392,11 +395,16 @@
         <package name="libSDL2-2_0-0"/>
         <package name="libSDL2_image-2_0-0"/>
         <package name="libSDL2_mixer-2_0-0"/>
-        <package name="libSDL2_ttf-2_0-0"/>
+       <!-- <package name="libSDL2_ttf-2_0-0"/>-->
         <package name="libXss1"/>
         <package name="libvorbis0"/>
         <package name="libassimp3"/>
         <package name="gwenhywfar-tools"/>
+        <package name="libdrm-amdgpu-pro"/>
+        <package name="libopencl-amdgpu-pro"/>
+        <package name="vulkan-amdgpu-pro"/>
+        <package name="libopencl-amdgpu-pro-icd"/>
+        <package name="libgwenhywfar60"/>
 <!--lang-->
                 <package name="paratype-pt-sans-fonts"/>
                 <package name="paratype-pt-serif-fonts"/>
@@ -415,7 +423,7 @@
 		<package name="libSDL2_gfx-1_0-0-32bit"/>
 		<package name="libSDL2_image-2_0-0-32bit"/>
 		<package name="libSDL2_mixer-2_0-0-32bit"/>
-		<package name="libSDL2_ttf-devel-32bit"/>
+		<!--<package name="libSDL2_ttf-devel-32bit"/>-->
 		<package name="libSDL_gfx15-32bit"/>
 		<package name="libSDL_image-1_2-0-32bit"/>
 		<package name="libSDL_mixer-1_2-0-32bit"/>
@@ -456,6 +464,15 @@
         <repository type="rpm-md" priority="90" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/security/openSUSE_Leap_42.2/"/>
         </repository>
+                <repository type="rpm-md" priority="90" imageinclude="false"  >
+                <source path="http://download.opensuse.org/update/leap/42.2/oss/"/>
+        </repository>
+                <repository type="rpm-md" priority="90" imageinclude="false"  >
+                <source path="http://download.opensuse.org/update/leap/42.2/non-oss/"/>
+        </repository>
+                <repository type="rpm-md" priority="90" imageinclude="false"  >
+                <source path="http://www.gearsongallium.com/download/amdgpu-pro-16.60-379184/"/>
+        </repository>
         <repository type="rpm-md" priority="90" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/drm-next/openSUSE_Leap_42.2/"/>
         </repository>
@@ -466,7 +483,7 @@
                 <source path="http://download.opensuse.org/repositories/home:/pontostroy:/branches:/home:/pontostroy:/X11/openSUSE_Leap_42.2/"/>
         </repository>
         <repository type="rpm-md" priority="30" imageinclude="false"  >
-                <source path="http://download.opensuse.org/repositories/KDE:/Qt57/openSUSE_Leap_42.2/"/>
+                <source path="http://download.opensuse.org/repositories/KDE:/Qt58/openSUSE_Leap_42.2/"/>
         </repository>       
         <repository type="rpm-md" priority="30" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/KDE:/Unstable:/Frameworks/openSUSE_Leap_42.2/"/>
@@ -506,5 +523,8 @@
         </repository>
 	        <repository type="rpm-md" priority="85" imageinclude="false"  >
                 <source path="http://download.opensuse.org/repositories/home:/mnhauke:/opencl:/stable/openSUSE_Leap_42.2/"/>
+        </repository>
+        	        <repository type="rpm-md" priority="85" imageinclude="false"  >
+                <source path="http://download.opensuse.org/repositories/home:/namtrac:/subpixel/openSUSE_Leap_42.2/"/>
         </repository>
 </image>

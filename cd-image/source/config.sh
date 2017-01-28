@@ -135,8 +135,8 @@ rm -rf /usr/share/autostart/krunner.desktop
 rm -rf /etc/ld.so.conf.d/libglvnd.conf
 ln -s /usr/lib64/libGLEW.so.1.13 /usr/lib64/libGLEW.so.1.5
 ln -s /usr/lib/libGLEW.so.1.13 /usr/lib/libGLEW.so.1.5
-ln -s /usr/lib/libudev.so.1.4.0 /usr/lib/libudev.so.0
-ln -s /usr/lib64/libudev.so.1.4.0 /usr/lib64/libudev.so.0
+ln -s /usr/lib/libudev.so.1 /usr/lib/libudev.so.0
+ln -s /usr/lib64/libudev.so.1 /usr/lib64/libudev.so.0
 ln -s /usr/lib/libbz2.so.1 /usr/lib/libbz2.so.1.0
 ln -s /usr/lib64/libbz2.so.1 /usr/lib64/libbz2.so.1.0
 ln -s /sbin/lspci /bin/lspci
@@ -169,7 +169,7 @@ sed -i -e 's,^\(.*pam_gnome_keyring.so.*\),#\1,'  /etc/pam.d/common-auth-pc
 # bug 876555, remove this once the package is updated
 ln -s /usr/share/YaST2/theme/openSUSE /usr/share/YaST2/theme/current
 
-sed -i -e 's,--libinput, ,'  /usr/bin/startplasmacompositor
+#sed -i -e 's,--libinput, ,'  /usr/bin/startplasmacompositor
 
 sed -i -e 's,log.error "No base product found",#log.error "No base product found",'  /usr/share/YaST2/modules/Product.rb
 sed -i -e 's,raise "No base product found",#raise "No base product found",'  /usr/share/YaST2/modules/Product.rb
@@ -190,6 +190,7 @@ done
 # echo "User=gog" >> /etc/sddm.conf
 # echo "Session=plasma5.desktop" >> /etc/sddm.conf
 ln -s /usr/share/gwenhywfar/ca-bundle.crt  /etc/ssl/certs/ca-certificates.crt
+ln -s /usr/share/gwenhywfar/ca-bundle.crt  /etc/ssl/certs/ca-bundle.crt
 
 suseConfig
 usermod -a -G wheel gog
