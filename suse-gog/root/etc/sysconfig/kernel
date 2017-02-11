@@ -39,7 +39,7 @@ DOMU_INITRD_MODULES="xennet xenblk"
 # You will find a few default modules for hardware which
 # can not be detected automatically.
 #
-MODULES_LOADED_ON_BOOT=""
+MODULES_LOADED_ON_BOOT="overlayfs"
 
 ## Type:        string
 ## Default:     ""

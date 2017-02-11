@@ -128,7 +128,7 @@
 		<package name="e2fsprogs"/>
 		<package name="ucode-amd"/>
 		<package name="ucode-intel"/>
-                <package name="ntfs-3g"/>
+        <package name="ntfs-3g"/>
 	</packages>
 	<packages type="delete">
 		<package name="cracklib-dict-full"/>
@@ -152,8 +152,8 @@
 		<package name="Mesa-libEGL1"/>
 		<package name="Mesa-libGL1"/>
 		<package name="Mesa-libglapi0 "/>
-		<package name="libLLVM39"/>
-		<package name="libclang39"/>
+		<package name="libLLVM50"/>
+		<package name="libclang50"/>
 		<package name="openSUSE-release"/>
 		<package name="pam"/>
 		<package name="pam-config"/>
